@@ -4,9 +4,7 @@ const nextConfig: NextConfig = {
     images: {
         domains: ["images.unsplash.com", "images.pexels.com"],
     },
-    allowedDevOrigins: ["http://192.168.0.100:3000"], // your LAN dev URL
-
-
+    allowedDevOrigins: ["http://192.168.0.104:3000"],
 };
 
 export default nextConfig;
