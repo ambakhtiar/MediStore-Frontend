@@ -6,13 +6,13 @@ export async function proxy(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
 
     let isAuthenticated = false;
-    let isAdmin = false;
+    let role;
 
     const { data } = await userService.getSession();
 
     if (data) {
         isAuthenticated = true;
-        isAdmin = data.user.role === Roles.admin;
+        role = data?.data?.user?.role;
     }
 
     //* User in not authenticated at all
@@ -22,14 +22,14 @@ export async function proxy(request: NextRequest) {
 
     //* User is authenticated and role = ADMIN
     //* User can not visit user dashboard
-    if (isAdmin && pathname.startsWith("/dashboard")) {
-        return NextResponse.redirect(new URL("/admin-dashboard", request.url));
+    if (role === Roles.admin && pathname.startsWith("/admin")) {
+        return NextResponse.redirect(new URL("/admin", request.url));
     }
 
     //* User is authenticated and role = USER
     //* User can not visit admin-dashboard
-    if (!isAdmin && pathname.startsWith("/admin-dashboard")) {
-        return NextResponse.redirect(new URL("/dashboard", request.url));
+    if (role === Roles.seller && pathname.startsWith("/seller")) {
+        return NextResponse.redirect(new URL("//seller/dashboard", request.url));
     }
 
     return NextResponse.next();
@@ -39,7 +39,9 @@ export const config = {
     matcher: [
         "/dashboard",
         "/dashboard/:path*",
-        "/admin-dashboard",
-        "/admin-dashboard/:path*",
+        "/admin",
+        "/admin/:path*",
+        "/seller",
+        "/seller/:path*",
     ],
 };
