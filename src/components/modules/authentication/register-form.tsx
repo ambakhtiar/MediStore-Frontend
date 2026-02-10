@@ -30,7 +30,7 @@ const handleGoogleLogin = async () => {
         provider: "google",
         callbackURL: "http://localhost:3000",
     });
-    console.log(data);
+    // console.log(data);
 };
 export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
     const router = useRouter();

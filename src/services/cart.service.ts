@@ -90,7 +90,7 @@ async function updateCartItem(payload: UpdateItemPayload) {
             credentials: "include",
             body: JSON.stringify({ quantity: payload.quantity }),
         });
-        console.log((await res.json()));
+        // console.log((await res.json()));
 
         const body = await res.json().catch(() => null);
 

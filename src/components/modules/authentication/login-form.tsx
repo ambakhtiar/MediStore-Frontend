@@ -39,7 +39,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
             callbackURL: callbackUrl,
         });
 
-        console.log(data);
+        // console.log(data);
     };
 
     const form = useForm({

@@ -469,7 +469,6 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
-import { useCart } from "@/providers/cart-context";
 
 interface MenuItem {
     title: string;
@@ -513,7 +512,6 @@ const Navbar = ({
     const cbUrlRef = useRef<string>("/");
     const [cbUrl, setCbUrl] = useState<string>("");
     const [mounted, setMounted] = useState(false);
-    const { cartCount } = useCart();
 
     // Compute callbackUrl on client only to avoid SSR/CSR mismatch
     useEffect(() => {
@@ -623,26 +621,26 @@ const Navbar = ({
                             <div className="flex items-center gap-4">
                                 {/* Cart icon with badge (only for CUSTOMER) */}
                                 {session.data?.user?.role === Roles.customer && (
-                                    // <Link href="/cart" className="relative inline-flex items-center">
-                                    //     <svg className="w-7 h-7 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                                    //         <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 6h14l-2-6M10 21a1 1 0 100-2 1 1 0 000 2zm6 0a1 1 0 100-2 1 1 0 000 2z" />
-                                    //     </svg>
+                                    <Link href="/cart" className="relative inline-flex items-center">
+                                        <svg className="w-7 h-7 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                                            <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 6h14l-2-6M10 21a1 1 0 100-2 1 1 0 000 2zm6 0a1 1 0 100-2 1 1 0 000 2z" />
+                                        </svg>
 
-                                    //     {/* replace `cartCount` with your state variable */}
-                                    //     <span className="absolute -top-2 -right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-semibold text-white bg-red-600 rounded-full">
-                                    //         {/* {cartCount} */} 0
-                                    //     </span>
-                                    // </Link>
-                                    <Button variant="ghost" size="icon" className="relative" asChild>
-                                        <a href="/cart">
-                                            <ShoppingCart className="size-5" />
-                                            {cartCount > 0 && (
-                                                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
-                                                    {cartCount > 99 ? "99+" : cartCount}
-                                                </span>
-                                            )}
-                                        </a>
-                                    </Button>
+                                        {/* replace `cartCount` with your state variable */}
+                                        <span className="absolute -top-2 -right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-semibold text-white bg-red-600 rounded-full">
+                                            {/* {cartCount} */} 0
+                                        </span>
+                                    </Link>
+                                    // <Button variant="ghost" size="icon" className="relative" asChild>
+                                    //     <a href="/cart">
+                                    //         <ShoppingCart className="size-5" />
+                                    //         {cartCount > 0 && (
+                                    //             <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+                                    //                 {cartCount > 99 ? "99+" : cartCount}
+                                    //             </span>
+                                    //         )}
+                                    //     </a>
+                                    // </Button>
                                 )}
 
                                 {/* Profile avatar + dropdown */}
