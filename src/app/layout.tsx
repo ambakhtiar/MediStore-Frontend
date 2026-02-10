@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { Toaster } from "sonner";
+import { CartProvider } from "@/providers/cart-context";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -35,8 +36,10 @@ export default function RootLayout({
                     enableSystem
                     disableTransitionOnChange
                 >
-                    {children}
-                    <Toaster />
+                    <CartProvider>
+                        {children}
+                        <Toaster />
+                    </CartProvider>
                 </ThemeProvider>
             </body>
         </html>

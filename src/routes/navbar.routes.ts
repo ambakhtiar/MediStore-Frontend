@@ -2,16 +2,8 @@ import { NavbarRoutesTypes } from "@/types";
 
 export const customerNavbarRoutes: NavbarRoutesTypes[] = [
     {
-        title: "Cart",
-        url: "/cart"
-    },
-    {
         title: "Orders",
         url: "/orders"
-    },
-    {
-        title: "Dashboard",
-        url: "/dashboard",
     }
 ];
 
@@ -32,8 +24,8 @@ export const sellerNavbarRoutes: NavbarRoutesTypes[] = [
 
 export const adminNavbarRoutes: NavbarRoutesTypes[] = [
     {
-        title: "user",
-        url: "/admin/user"
+        title: "Users",
+        url: "/admin/users"
     },
     {
         title: "Orders",

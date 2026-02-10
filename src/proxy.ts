@@ -12,7 +12,7 @@ export async function proxy(request: NextRequest) {
 
     if (data) {
         isAuthenticated = true;
-        role = data?.data?.user?.role;
+        role = data?.user?.role;
     }
 
     //* User in not authenticated at all
@@ -20,34 +20,48 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    //* User is authenticated and role = ADMIN
-    //* User can visit admin dashboard
-    if (role === Roles.admin && pathname.startsWith("/admin")) {
-        return NextResponse.redirect(new URL("/admin", request.url));
+    // Role-based guards
+    // Admin routes: only admin allowed
+    if (pathname.startsWith("/admin")) {
+        if (role !== Roles.admin) {
+            return NextResponse.redirect(new URL("/", request.url));
+        }
+        return NextResponse.next();
     }
 
-    //* User is authenticated and role = seller
-    //* User can not visit admin-dashboard
-    if (role === Roles.seller && pathname.startsWith("/seller")) {
-        return NextResponse.redirect(new URL("/seller/dashboard", request.url));
+    // Seller routes: only seller allowed
+    if (pathname.startsWith("/seller")) {
+        if (role !== Roles.seller) {
+            return NextResponse.redirect(new URL("/", request.url));
+        }
+        return NextResponse.next();
     }
 
-    //* User is authenticated and role = customer
-    //* User can not visit seller or admin dashboard
-    if (role === Roles.customer) {
-        return NextResponse.redirect(new URL("/", request.url));
-    }
+    // Customer dashboard (if you treat /dashboard as customer-only)
+    // if (pathname.startsWith("/dashboard")) {
+    //     if (role !== Roles.customer) {
+    //         return NextResponse.redirect(new URL("/", request.url));
+    //     }
+    //     return NextResponse.next();
+    // }
 
+    // Other private routes (authenticated users of any role can access)
+    // e.g., /cart, /checkout, /orders, /profile
+    // Since we already checked isAuthenticated above, allow them
     return NextResponse.next();
+
 }
 
 export const config = {
     matcher: [
-        "/dashboard",
-        "/dashboard/:path*",
         "/admin",
         "/admin/:path*",
         "/seller",
         "/seller/:path*",
+        "/cart",
+        "/orders",
+        "/orders/:path*",
+        "/profile",
+        "/checkout",
     ],
 };

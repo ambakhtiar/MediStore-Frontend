@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { MedicineType } from "@/types/medicine.type";
 import { getMedicineById } from "@/action/medicine.action";
-import AddToCartSection from "@/components/modules/homepage/addToCardSection";
+import AddToCartSection from "@/components/modules/cart/addToCardSection";
 
 type Props = { params: { id: string } };
 

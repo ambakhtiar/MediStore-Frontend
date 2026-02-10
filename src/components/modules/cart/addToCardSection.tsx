@@ -73,8 +73,18 @@ export default function AddToCartSection({
     };
 
     return (
-        <div className={className}>
-            <div className="flex items-center gap-3">
+        <div className="flex flex-col md:flex-row items-start gap-2">
+            <div className="flex">
+                <button
+                    type="button"
+                    onClick={() => setQty((s) => Math.max(1, s - 1))}
+                    aria-label="Decrease quantity"
+                    className="w-9 h-9 flex items-center justify-center rounded-md border bg-white hover:bg-gray-50 disabled:opacity-50"
+                    disabled={qty <= 1}
+                >
+                    −
+                </button>
+
                 <input
                     type="number"
                     min={1}
@@ -82,16 +92,28 @@ export default function AddToCartSection({
                     onChange={(e) => {
                         const v = Number(e.target.value || 1);
                         if (Number.isNaN(v)) return;
-                        if (typeof maxStock === "number") setQty(Math.max(1, Math.min(maxStock, Math.floor(v))));
-                        else setQty(Math.max(1, Math.floor(v)));
+                        const n = Math.floor(v);
+                        if (typeof maxStock === "number") setQty(Math.max(1, Math.min(maxStock, n)));
+                        else setQty(Math.max(1, n));
                     }}
-                    className="w-16 border rounded px-2 py-1 text-center"
+                    className="w-20 text-center border rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary"
                     aria-label="Quantity"
+                    inputMode="numeric"
                 />
-                <Button onClick={handleAdd} disabled={loading} variant="default">
-                    {loading ? "Adding..." : "Add to Cart"}
-                </Button>
+
+                <button
+                    type="button"
+                    onClick={() => setQty((s) => (typeof maxStock === "number" ? Math.min(maxStock, s + 1) : s + 1))}
+                    aria-label="Increase quantity"
+                    className="w-9 h-9 flex items-center justify-center rounded-md border bg-white hover:bg-gray-50 disabled:opacity-50"
+                    disabled={typeof maxStock === "number" && qty >= maxStock}
+                >
+                    +
+                </button>
             </div>
+            <Button onClick={handleAdd} disabled={loading} variant="default">
+                {loading ? "Adding..." : "Add to Cart"}
+            </Button>
         </div>
     );
 }
