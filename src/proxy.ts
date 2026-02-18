@@ -21,33 +21,32 @@ export async function proxy(request: NextRequest) {
     }
 
     // Role-based guards
-    // Admin routes: only admin allowed
-    if (pathname.startsWith("/admin")) {
+    // Admin routes
+    if (pathname === "/admin" || pathname.startsWith("/admin/")) {
         if (role !== Roles.admin) {
             return NextResponse.redirect(new URL("/", request.url));
         }
         return NextResponse.next();
     }
 
-    // Seller routes: only seller allowed
-    if (pathname.startsWith("/seller")) {
+    // Seller routes
+    if (pathname === "/seller" || pathname.startsWith("/seller/")) {
         if (role !== Roles.seller) {
             return NextResponse.redirect(new URL("/", request.url));
         }
         return NextResponse.next();
     }
 
-    // Customer dashboard (if you treat /dashboard as customer-only)
-    // if (pathname.startsWith("/dashboard")) {
-    //     if (role !== Roles.customer) {
-    //         return NextResponse.redirect(new URL("/", request.url));
-    //     }
-    //     return NextResponse.next();
+    // Customer-only routes (optional)
+    // Example: if you want /dashboard to be customer-only uncomment:
+    // if (pathname === "/dashboard" || pathname.startsWith("/dashboard/")) {
+    //   if (role !== Roles.customer) {
+    //     return NextResponse.redirect(new URL("/", request.url));
+    //   }
+    //   return NextResponse.next();
     // }
 
-    // Other private routes (authenticated users of any role can access)
-    // e.g., /cart, /checkout, /orders, /profile
-    // Since we already checked isAuthenticated above, allow them
+    // All other matched routes are allowed for any authenticated user
     return NextResponse.next();
 
 }
@@ -63,5 +62,6 @@ export const config = {
         "/orders/:path*",
         "/profile",
         "/checkout",
+        "/track"
     ],
 };

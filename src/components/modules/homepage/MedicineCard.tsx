@@ -74,7 +74,7 @@ export default function MedicineCard({ id, name, genericName, price, imageUrl }:
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">{name}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-300 truncate">{genericName}</p>
                     <div className="mt-3 flex items-center justify-between">
-                        <span className="text-sm font-semibold">${Number(price ?? 0).toFixed(2)}</span>
+                        <span className="text-sm font-semibold">৳{Number(price ?? 0).toFixed(2)}</span>
                         <span className="text-xs text-gray-500 dark:text-gray-400">In stock</span>
                     </div>
                 </div>

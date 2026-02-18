@@ -37,7 +37,7 @@ export default async function FeaturedMedicines({ limit = 4 }: { limit?: number 
                                 <div className="mt-1 text-sm text-gray-600 dark:text-gray-300">
                                     {
                                         m.price &&
-                                        <span className="font-semibold">${m.price.toFixed(2)}</span>
+                                        <span className="font-semibold">৳{m.price.toFixed(2)}</span>
                                     }
                                 </div>
                             </Link>

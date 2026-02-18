@@ -1,17 +1,15 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { zodValidator } from "@tanstack/zod-form-adapter";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import * as z from "zod";
 import { createOrder } from "@/action/order.action";
-import { checkoutFormSchema, type CheckoutFormValues } from "@/lib/validations/order.validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { useCart } from "@/providers/cart-context";
 
 interface CheckoutFormProps {
@@ -19,45 +17,59 @@ interface CheckoutFormProps {
     itemCount: number;
 }
 
+// Validation Schema
+const checkoutFormSchema = z.object({
+    shippingName: z
+        .string()
+        .min(2, "Name must be at least 2 characters")
+        .max(100, "Name cannot exceed 100 characters"),
+
+    shippingPhone: z
+        .string()
+        .regex(/^01[3-9]\d{8}$/, "Enter a valid Bangladeshi mobile number (e.g., 01712345678)"),
+
+    shippingAddress: z
+        .string()
+        .min(20, "Address must be at least 100 characters (please provide details)")
+        .max(500, "Address cannot exceed 500 characters"),
+});
+
 export default function CheckoutForm({ subtotal, itemCount }: CheckoutFormProps) {
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
     const { refreshCart } = useCart();
 
-    const form = useForm<CheckoutFormValues>({
+    const form = useForm({
         defaultValues: {
             shippingName: "",
             shippingPhone: "",
             shippingAddress: "",
         },
-        validatorAdapter: zodValidator(),
         validators: {
-            onChange: checkoutFormSchema,
+            onSubmit: checkoutFormSchema,
         },
         onSubmit: async ({ value }) => {
-            setIsSubmitting(true);
-            const toastId = toast.loading("অর্ডার প্রসেস হচ্ছে...");
+            const toastId = toast.loading("Processing order...");
 
             try {
                 const result = await createOrder(value);
 
                 if (!result.ok) {
-                    toast.error(result.error?.message || "অর্ডার করা যায়নি", { id: toastId });
+                    toast.error(result.error?.message || "Order could not be placed", { id: toastId });
                     return;
                 }
 
-                toast.success("অর্ডার সফলভাবে সম্পন্ন হয়েছে!", { id: toastId });
+                toast.success("Order placed successfully!", { id: toastId });
+
+                // Redirect to orders page
+                router.push("/orders");
 
                 // Refresh cart (will be empty now)
                 await refreshCart();
 
-                // Redirect to orders page
-                router.push("/orders");
+                router.refresh();
             } catch (error) {
                 console.error("Order submission error:", error);
-                toast.error("একটি সমস্যা হয়েছে", { id: toastId });
-            } finally {
-                setIsSubmitting(false);
+                toast.error("Something went wrong", { id: toastId });
             }
         },
     });
@@ -68,163 +80,144 @@ export default function CheckoutForm({ subtotal, itemCount }: CheckoutFormProps)
             <div className="lg:col-span-2">
                 <Card>
                     <CardHeader>
-                        <CardTitle>ডেলিভারি তথ্য</CardTitle>
-                        <CardDescription>আপনার ডেলিভারি তথ্য দিন</CardDescription>
+                        <CardTitle>Delivery Information</CardTitle>
+                        <CardDescription>Please provide your delivery details</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form
+                            id="checkout-form"
                             onSubmit={(e) => {
                                 e.preventDefault();
-                                e.stopPropagation();
                                 form.handleSubmit();
                             }}
-                            className="space-y-6"
                         >
-                            {/* Shipping Name */}
-                            <form.Field
-                                name="shippingName"
-                                children={(field) => (
-                                    <div className="space-y-2">
-                                        <Label htmlFor="shippingName">
-                                            নাম <span className="text-red-500">*</span>
-                                        </Label>
-                                        <Input
-                                            id="shippingName"
-                                            type="text"
-                                            placeholder="আপনার পূর্ণ নাম লিখুন"
-                                            value={field.state.value}
-                                            onBlur={field.handleBlur}
-                                            onChange={(e) => field.handleChange(e.target.value)}
-                                            disabled={isSubmitting}
-                                        />
-                                        {field.state.meta.errors && field.state.meta.errors.length > 0 && (
-                                            <p className="text-sm text-red-500">
-                                                {field.state.meta.errors[0]}
-                                            </p>
-                                        )}
-                                    </div>
-                                )}
-                            />
+                            <FieldGroup>
+                                {/* Shipping Name */}
+                                <form.Field name="shippingName">
+                                    {(field) => (
+                                        <Field>
+                                            <FieldLabel htmlFor={field.name}>
+                                                Name <span className="text-red-500">*</span>
+                                            </FieldLabel>
+                                            <Input
+                                                type="text"
+                                                name={field.name}
+                                                id={field.name}
+                                                placeholder="Enter your full name"
+                                                value={field.state.value}
+                                                onChange={(e) => field.handleChange(e.target.value)}
+                                                onBlur={field.handleBlur}
+                                            />
+                                            {field.state.meta.isTouched && !field.state.meta.isValid && (
+                                                <FieldError errors={field.state.meta.errors} />
+                                            )}
+                                        </Field>
+                                    )}
+                                </form.Field>
 
-                            {/* Shipping Phone */}
-                            <form.Field
-                                name="shippingPhone"
-                                children={(field) => (
-                                    <div className="space-y-2">
-                                        <Label htmlFor="shippingPhone">
-                                            মোবাইল নম্বর <span className="text-red-500">*</span>
-                                        </Label>
-                                        <Input
-                                            id="shippingPhone"
-                                            type="tel"
-                                            placeholder="01712345678"
-                                            value={field.state.value}
-                                            onBlur={field.handleBlur}
-                                            onChange={(e) => field.handleChange(e.target.value)}
-                                            disabled={isSubmitting}
-                                            inputMode="numeric"
-                                        />
-                                        {field.state.meta.errors && field.state.meta.errors.length > 0 && (
-                                            <p className="text-sm text-red-500">
-                                                {field.state.meta.errors[0]}
-                                            </p>
-                                        )}
-                                    </div>
-                                )}
-                            />
+                                {/* Shipping Phone */}
+                                <form.Field name="shippingPhone">
+                                    {(field) => (
+                                        <Field>
+                                            <FieldLabel htmlFor={field.name}>
+                                                Mobile Number <span className="text-red-500">*</span>
+                                            </FieldLabel>
+                                            <Input
+                                                type="tel"
+                                                name={field.name}
+                                                id={field.name}
+                                                placeholder="01712345678"
+                                                value={field.state.value}
+                                                onChange={(e) => field.handleChange(e.target.value)}
+                                                onBlur={field.handleBlur}
+                                                inputMode="numeric"
+                                            />
+                                            {field.state.meta.isTouched && !field.state.meta.isValid && (
+                                                <FieldError errors={field.state.meta.errors} />
+                                            )}
+                                        </Field>
+                                    )}
+                                </form.Field>
 
-                            {/* Shipping Address */}
-                            <form.Field
-                                name="shippingAddress"
-                                children={(field) => (
-                                    <div className="space-y-2">
-                                        <Label htmlFor="shippingAddress">
-                                            সম্পূর্ণ ঠিকানা <span className="text-red-500">*</span>
-                                        </Label>
-                                        <Textarea
-                                            id="shippingAddress"
-                                            placeholder="আপনার সম্পূর্ণ ঠিকানা বিস্তারিত লিখুন (বাড়ি নং, রোড নং, এলাকা, থানা, জেলা)"
-                                            value={field.state.value}
-                                            onBlur={field.handleBlur}
-                                            onChange={(e) => field.handleChange(e.target.value)}
-                                            disabled={isSubmitting}
-                                            rows={5}
-                                            className="resize-none"
-                                        />
-                                        <p className="text-xs text-muted-foreground">
-                                            {field.state.value.length}/500 অক্ষর (কমপক্ষে ১০০ অক্ষর)
-                                        </p>
-                                        {field.state.meta.errors && field.state.meta.errors.length > 0 && (
-                                            <p className="text-sm text-red-500">
-                                                {field.state.meta.errors[0]}
+                                {/* Shipping Address */}
+                                <form.Field name="shippingAddress">
+                                    {(field) => (
+                                        <Field>
+                                            <FieldLabel htmlFor={field.name}>
+                                                Full Address <span className="text-red-500">*</span>
+                                            </FieldLabel>
+                                            <Textarea
+                                                name={field.name}
+                                                id={field.name}
+                                                placeholder="Enter your complete address (House no, Road no, Area, Thana, District)"
+                                                value={field.state.value}
+                                                onChange={(e) => field.handleChange(e.target.value)}
+                                                onBlur={field.handleBlur}
+                                                rows={5}
+                                                className="resize-none"
+                                            />
+                                            <p className="text-xs text-muted-foreground mt-1">
+                                                {field.state.value.length}/500 characters (minimum 100 characters)
                                             </p>
-                                        )}
-                                    </div>
-                                )}
-                            />
+                                            {field.state.meta.isTouched && !field.state.meta.isValid && (
+                                                <FieldError errors={field.state.meta.errors} />
+                                            )}
+                                        </Field>
+                                    )}
+                                </form.Field>
+                            </FieldGroup>
 
                             {/* Submit Button */}
-                            <form.Subscribe
-                                selector={(state) => [state.canSubmit, state.isSubmitting]}
-                                children={([canSubmit, isSubmitting]) => (
-                                    <Button
-                                        type="submit"
-                                        className="w-full"
-                                        disabled={!canSubmit || isSubmitting}
-                                    >
-                                        {isSubmitting ? "অর্ডার প্রসেস হচ্ছে..." : "অর্ডার নিশ্চিত করুন"}
-                                    </Button>
-                                )}
-                            />
+                            <Button type="submit" form="checkout-form" className="w-full mt-6">
+                                Confirm Order
+                            </Button>
                         </form>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Order Summary */}
-            <div className="lg:col-span-1">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>অর্ডার সামারি</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="flex justify-between">
-                            <span className="text-muted-foreground">আইটেম সংখ্যা</span>
-                            <span className="font-medium">{itemCount}</span>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Order Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex justify-between">
+                        <span className="text-muted-foreground">Item Count</span>
+                        <span className="font-medium">{itemCount}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span className="text-muted-foreground">Subtotal</span>
+                        <span className="font-medium">৳{subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span className="text-muted-foreground">Delivery Charge</span>
+                        <span className="font-medium text-green-600">Free</span>
+                    </div>
+                    <div className="border-t pt-4">
+                        <div className="flex justify-between text-lg font-bold">
+                            <span>Total</span>
+                            <span>৳{subtotal.toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between">
-                            <span className="text-muted-foreground">সাবটোটাল</span>
-                            <span className="font-medium">৳{subtotal.toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-muted-foreground">ডেলিভারি চার্জ</span>
-                            <span className="font-medium text-green-600">ফ্রি</span>
-                        </div>
-                        <div className="border-t pt-4">
-                            <div className="flex justify-between text-lg font-bold">
-                                <span>মোট</span>
-                                <span>৳{subtotal.toFixed(2)}</span>
-                            </div>
-                        </div>
+                    </div>
 
-                        {/* Payment Method Info */}
-                        <div className="rounded-lg border bg-muted/50 p-4">
-                            <h4 className="font-semibold mb-2">পেমেন্ট মেথড</h4>
-                            <div className="flex items-center gap-2">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                                    ₹
-                                </div>
-                                <div>
-                                    <p className="font-medium">ক্যাশ অন ডেলিভারি</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        পণ্য হাতে পেয়ে টাকা দিন
-                                    </p>
-                                </div>
+                    {/* Payment Method Info */}
+                    <div className="rounded-lg border bg-muted/50 p-4">
+                        <h4 className="font-semibold mb-2">Payment Method</h4>
+                        <div className="flex items-center gap-2">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                                ৳
+                            </div>
+                            <div>
+                                <p className="font-medium">Cash on Delivery</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Pay when you receive the product
+                                </p>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
-            </div>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }
