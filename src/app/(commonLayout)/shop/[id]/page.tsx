@@ -99,13 +99,6 @@
 // }
 
 
-/**
- * Medicine Details Page - Updated with Reviews Section
- * Path: src/app/medicine/[id]/page.tsx
- * 
- * আপনার existing medicine details page এর নিচে reviews section add করুন
- */
-
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -114,17 +107,25 @@ import { getMedicineById } from "@/action/medicine.action";
 import { getReviewsByMedicine } from "@/action/review.action";
 import AddToCartSection from "@/components/modules/cart/addToCardSection";
 import ReviewList from "@/components/modules/review/ReviewList";
+import { getSession } from "@/action/user.action";
 
 type Props = { params: { id: string } };
 
 export default async function MedicinePage({ params }: Props) {
     const { id } = await params;
 
-    // Fetch medicine এবং reviews parallel এ
+    // Parallel Fetch medicine and reviews  
     const [medicineRes, reviewsRes] = await Promise.all([
         getMedicineById(id, { revalidate: 60 }),
         getReviewsByMedicine(id),
     ]);
+
+    const session = await getSession();
+    const user = session?.data?.user ?? null;
+    const userRole =
+        (user && (user.role ?? (user.rolle as string | undefined))) ?? "CUSTOMER";
+
+
 
     const payload: MedicineType = medicineRes?.data?.data ?? medicineRes?.data ?? null;
     const medicine: MedicineType | null = payload ?? null;
@@ -218,6 +219,8 @@ export default async function MedicinePage({ params }: Props) {
                         <AddToCartSection
                             medicineId={medicine.id}
                             maxStock={medicine.stock ?? undefined}
+                            initialQty={1}
+                            role={userRole}
                         />
                     </div>
 

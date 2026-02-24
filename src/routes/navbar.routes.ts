@@ -41,7 +41,7 @@ export const adminNavbarRoutes: NavbarRoutesTypes[] = [
     },
     {
         title: "Dashboard",
-        url: "/dashboard",
+        url: "/admin/dashboard",
     }
 ];
 

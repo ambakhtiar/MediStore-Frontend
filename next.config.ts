@@ -2,8 +2,8 @@ import "./src/env";
 
 import type { NextConfig } from "next";
 
-const NextConfig = {
-    experimental: { appDir: true },
+const nextConfig: NextConfig = {
+    // experimental: { appDir: true },
     images: {
         formats: ["image/avif", "image/webp"],
         remotePatterns: [
@@ -17,9 +17,25 @@ const NextConfig = {
                 hostname: "images.pexels.com",
                 pathname: "/**",
             },
+            {
+                protocol: "https",
+                hostname: "lh3.googleusercontent.com",
+                pathname: "/**",
+            },
+            {
+                protocol: "https",
+                hostname: "deifkwefumgah.cloudfront.net",
+                pathname: "/**",
+            },
+            {
+                protocol: "https",
+                hostname: "upload.wikimedia.org",
+                pathname: "/**",
+            },
+
         ],
     },
     allowedDevOrigins: ["http://192.168.0.104:3000"],
 };
 
-module.exports = NextConfig;
+module.exports = nextConfig;

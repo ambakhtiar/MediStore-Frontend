@@ -29,10 +29,10 @@ interface Footer2Props {
 
 const Footer2 = ({
     logo = {
-        src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/block-1.svg",
-        alt: "blocks for shadcn/ui",
-        title: "Shadcnblocks.com",
-        url: "https://www.shadcnblocks.com",
+        src: "/medistore-logo.svg",
+        alt: "MediStore logo",
+        title: "MediStore",
+        url: "/",
     },
     className,
     tagline = "Your Medicines is Now in your Door.",
@@ -68,14 +68,14 @@ const Footer2 = ({
                     <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
                         <div className="col-span-2 mb-8 lg:mb-0">
                             <div className="flex items-center gap-2 lg:justify-start">
-                                <Logo url="https://shadcnblocks.com">
+                                <Logo url="/">
                                     <LogoImage
                                         src={logo.src}
                                         alt={logo.alt}
                                         title={logo.title}
-                                        className="h-10 dark:invert"
+                                        className="h-14 dark:invert"
                                     />
-                                    <LogoText className="text-xl">{logo.title}</LogoText>
+                                    <LogoText className="text-3xl">{logo.title}</LogoText>
                                 </Logo>
                             </div>
                             <p className="mt-4 font-bold">{tagline}</p>

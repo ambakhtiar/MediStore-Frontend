@@ -4,3 +4,4 @@ export type * from "./routes.type";
 export type * from "./order.type";
 export type * from "./review.type";
 export type * from "./profile.type";
+export type * from "./dashboard.type";

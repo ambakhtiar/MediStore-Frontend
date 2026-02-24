@@ -30,8 +30,8 @@ export type SessionWithUser = {
     user: User;
 };
 
-export type ApiResponse<T = unknown> = {
-    data?: T | null;
-    error?: unknown;
-} | null;
+// export type ApiResponse<T = unknown> = {
+//     data?: T | null;
+//     error?: unknown;
+// } | null;
 
