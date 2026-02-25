@@ -8,7 +8,7 @@
  */
 
 import { env } from "@/env";
-import { MedicineType } from "@/types";
+import { CreateMedicineType, MedicineType } from "@/types";
 import { cookies } from "next/headers";
 
 const API_URL = env.API_URL;
@@ -65,7 +65,7 @@ const getMedicines = async () => {
  * Add medicine
  * POST /api/seller/medicines
  */
-const addMedicine = async (payload: MedicineType) => {
+const addMedicine = async (payload: CreateMedicineType) => {
     const cookieStore = await cookies();
 
     try {

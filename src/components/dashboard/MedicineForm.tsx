@@ -25,23 +25,23 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { addMedicine, updateMedicine } from "@/action/dashboard.action";
+import { Category, CreateMedicineType, Medicine } from "@/types";
 
-// Validation schema
 const medicineSchema = z.object({
-    name: z.string().min(2, "Name must be at least 2 characters").max(200, "Name too long"),
-    genericName: z.string().optional().or(z.literal("")),
-    description: z.string().optional().or(z.literal("")),
-    price: z.number().min(0, "Price must be positive"),
-    stock: z.number().int().min(0, "Stock must be 0 or greater"),
-    manufacturer: z.string().optional().or(z.literal("")),
-    categoryId: z.string().min(1, "Please select a category"),
-    imageUrl: z.string().url("Must be a valid URL").or(z.literal("")),
+    name: z.string().min(2).max(200),
+    genericName: z.string().or(z.literal("")),
+    description: z.string().or(z.literal("")),
+    price: z.number().min(0),
+    stock: z.number().int().min(0),
+    manufacturer: z.string().or(z.literal("")),
+    categoryId: z.string().min(1),
+    imageUrl: z.string().url().or(z.literal("")),
     isActive: z.boolean(),
 });
 
 interface MedicineFormProps {
-    categories: any[];
-    initialData?: any; // For edit mode
+    categories: Category[];
+    initialData: Partial<Medicine>;
     isEdit?: boolean;
 }
 
@@ -72,8 +72,8 @@ export default function MedicineForm({
 
             try {
                 const result = isEdit
-                    ? await updateMedicine(initialData.id, value)
-                    : await addMedicine(value);
+                    ? await updateMedicine(initialData.id!, value)
+                    : await addMedicine(value as CreateMedicineType);
 
                 if (!result.ok) {
                     toast.error(result.error?.message || "Operation failed", { id: toastId });

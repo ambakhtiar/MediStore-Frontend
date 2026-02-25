@@ -28,6 +28,8 @@ export interface Medicine {
     };
 }
 
+export type CreateMedicineType = Omit<Medicine, "id">;
+
 export interface MedicineFormData {
     name: string;
     genericName?: string;

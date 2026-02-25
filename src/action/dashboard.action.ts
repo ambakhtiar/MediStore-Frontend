@@ -7,7 +7,7 @@
 import { sellerService } from "@/services/seller.service";
 import { adminService } from "@/services/admin.service";
 import { revalidatePath } from "next/cache";
-import { MedicineType } from "@/types";
+import { CreateMedicineType, MedicineType } from "@/types";
 
 // ============= SELLER MEDICINE ACTIONS =============
 
@@ -15,7 +15,7 @@ export const getSellerMedicines = async () => {
     return await sellerService.getMedicines();
 };
 
-export const addMedicine = async (payload: MedicineType) => {
+export const addMedicine = async (payload: CreateMedicineType) => {
     const result = await sellerService.addMedicine(payload);
 
     if (result.ok) {

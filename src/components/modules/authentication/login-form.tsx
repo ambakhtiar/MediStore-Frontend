@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { User } from "@/types";
 
 const formSchema = z.object({
     email: z.string().email("Invalid email address"),
@@ -63,6 +64,15 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
                     toast.error("Unexpected response from server", { id: toastId });
                     return;
                 }
+
+                const authUser = data.user as unknown as Partial<User> | undefined;
+
+                if (authUser?.status === "BAN") {
+                    toast.error("Your account has been banned. Contact admin.", { id: toastId });
+                    await authClient.signOut();
+                    return;
+                };
+
 
                 toast.success("Logged in successfully!", { id: toastId });
                 router.push(callbackUrl);

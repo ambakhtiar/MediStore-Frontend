@@ -1,47 +1,72 @@
 "use server";
 
+/**
+ * Review Actions - Complete with Update/Delete
+ */
+
 import { reviewService } from "@/services/review.service";
-import { CreateReviewPayload } from "@/types/review.type";
 import { revalidatePath } from "next/cache";
 
-
-export const createReview = async (medicineId: string, payload: CreateReviewPayload) => {
+/**
+ * Create review
+ */
+export const createReview = async (medicineId: string, payload: { rating: number; comment?: string }) => {
     const result = await reviewService.createReview(medicineId, payload);
 
     if (result.ok) {
-        // Reviews page revalidate 
         revalidatePath("/reviews");
-
-        // Medicine details page revalidate (যেখানে reviews দেখায়)
         revalidatePath(`/medicine/${medicineId}`);
     }
 
     return result;
 };
 
+/**
+ * Update review
+ */
+export const updateReview = async (reviewId: string, payload: { rating: number; comment?: string }) => {
+    const result = await reviewService.updateReview(reviewId, payload);
 
-export const getReviewsByMedicine = async (medicineId: string) => {
-    return await reviewService.getReviewsByMedicine(medicineId);
+    if (result.ok) {
+        revalidatePath("/reviews");
+        // We don't know medicineId here, so revalidate all medicine pages
+        revalidatePath("/medicine/[id]", "page");
+    }
+
+    return result;
 };
 
-
-export const getReviewsByUser = async (userId: string) => {
-    return await reviewService.getReviewsByUser(userId);
-};
-
-
-export const getDeliveredMedicinesForReview = async () => {
-    return await reviewService.getDeliveredMedicinesForReview();
-};
-
-
+/**
+ * Delete review
+ */
 export const deleteReview = async (reviewId: string) => {
     const result = await reviewService.deleteReview(reviewId);
 
     if (result.ok) {
-        // Reviews page revalidate 
         revalidatePath("/reviews");
+        revalidatePath("/medicine/[id]", "page");
     }
 
     return result;
+};
+
+/**
+ * Get reviews by medicine
+ */
+export const getReviewsByMedicine = async (medicineId: string) => {
+    return await reviewService.getReviewsByMedicine(medicineId);
+};
+
+/**
+ * Get reviews by user
+ */
+export const getReviewsByUser = async (userId: string) => {
+    return await reviewService.getReviewsByUser(userId);
+};
+
+/**
+ * Get delivered medicines for review
+ */
+export const getDeliveredMedicinesForReview = async () => {
+    return await reviewService.getDeliveredMedicinesForReview();
 };

@@ -185,6 +185,53 @@ const getDeliveredMedicinesForReview = async (): Promise<DeliveredMedicinesApiRe
 };
 
 
+/**
+ * Update review
+ * PUT /api/reviews/:reviewId
+ */
+const updateReview = async (reviewId: string, payload: { rating: number; comment?: string }) => {
+    const cookieStore = await cookies();
+
+    try {
+        const res = await fetch(`${API_URL}/reviews/medicines/${reviewId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Cookie: cookieStore.toString(),
+            },
+            body: JSON.stringify(payload),
+            credentials: "include",
+        });
+
+        const body = await res.json().catch(() => null);
+
+        if (!res.ok) {
+            return {
+                ok: false,
+                status: res.status,
+                data: null,
+                error: { message: body?.message ?? "Failed to update review" },
+            };
+        }
+
+        return {
+            ok: true,
+            status: res.status,
+            data: body ?? null,
+            error: null,
+        };
+    } catch (err) {
+        console.error("review.service.updateReview error:", err);
+        return {
+            ok: false,
+            status: 0,
+            data: null,
+            error: { message: "Network error" }
+        };
+    }
+};
+
+
 const deleteReview = async (reviewId: string): Promise<ReviewApiResponse> => {
     const cookieStore = await cookies();
 
@@ -233,5 +280,6 @@ export const reviewService = {
     getReviewsByMedicine,
     getReviewsByUser,
     getDeliveredMedicinesForReview,
+    updateReview,
     deleteReview,
 };
