@@ -21,9 +21,20 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet";
 
+interface Category {
+    id: string;
+    name: string;
+}
+
+interface Filters {
+    category?: string;
+    search?: string;
+    // Add other filter fields as needed
+}
+
 interface MedicineFiltersProps {
-    categories: any[];
-    onFilterChange: (filters: any) => void;
+    categories: Category[];
+    onFilterChange: (filters: Filters) => void;
 }
 
 export default function MedicineFilters({ categories, onFilterChange }: MedicineFiltersProps) {

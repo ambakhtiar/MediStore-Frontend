@@ -101,7 +101,7 @@ const getReviewsByUser = async (
     userId: string
 ): Promise<ReviewsListApiResponse> => {
     const cookieStore = await cookies();
-
+    console.log(userId);
     try {
         const res = await fetch(`${API_URL}/reviews/users/${userId}`, {
             method: "GET",

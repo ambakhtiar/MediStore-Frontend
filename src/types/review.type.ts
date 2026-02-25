@@ -83,3 +83,4 @@ export interface DeliveredMedicinesApiResponse {
         message: string;
     } | null;
 }
+

@@ -95,10 +95,6 @@ export const updateOrderStatus = async (orderId: string, status: string) => {
     return result;
 };
 
-// Get order status history
-export const getOrderStatusHistory = async (orderId: string) => {
-    return await adminService.getStatusHistory(orderId);
-};
 
 // ============= ADMIN STATS ACTIONS =============
 

@@ -1,5 +1,7 @@
 // Order Types (Updated with Status History)
 
+import { User } from "./user.type";
+
 export type OrderStatus =
     | "PLACED"
     | "PROCESSING"
@@ -48,7 +50,8 @@ export interface Order {
     createdAt: string;
     updatedAt: string;
     items: OrderItem[];
-    statusHistory?: OrderStatusHistory[];  // ← New field
+    statusHistory?: OrderStatusHistory[];
+    user: User
 }
 
 // Create Order Request

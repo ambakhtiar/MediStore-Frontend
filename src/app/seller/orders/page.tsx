@@ -5,7 +5,7 @@
  * Displays orders containing seller's products with status update capability
  */
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getSellerOrders, updateOrderItemStatus } from "@/action/dashboard.action";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,8 @@ import {
 import { toast } from "sonner";
 import Image from "next/image";
 import { format } from "date-fns";
+import { Order, OrderItem } from "@/types";
+import Link from "next/link";
 
 const STATUS_OPTIONS = [
     { value: "PLACED", label: "Placed" },
@@ -36,39 +38,57 @@ const getStatusColor = (status: string) => {
         case "CONFIRMS": return "default";
         case "PROCESSING": return "default";
         case "SHIPPED": return "outline";
-        case "DELIVERED": return "success";
+        case "DELIVERED": return "default";
         case "CANCELLED": return "destructive";
         default: return "secondary";
     }
 };
 
 export default function SellerOrdersPage() {
-    const [orders, setOrders] = useState<any[]>([]);
+    const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchOrders();
+    // Declare and memoize fetchOrders before useEffect
+    const fetchOrders = useCallback(async () => {
+        setLoading(true);
+        try {
+            const res = await getSellerOrders();
+            const data = res?.data?.data ?? [];
+
+            setOrders(data);
+        } catch (err) {
+            console.error("Failed to fetch seller orders:", err);
+            setOrders([]);
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
-    const fetchOrders = async () => {
-        setLoading(true);
-        const res = await getSellerOrders();
-        if (res.ok && res.data?.data) {
-            setOrders(res.data.data);
-        }
-        setLoading(false);
-    };
+    // useEffect calls the memoized fetchOrders; include it in deps
+    useEffect(() => {
+        let mounted = true;
+        (async () => {
+            if (!mounted) return;
+            await fetchOrders();
+        })();
+        return () => {
+            mounted = false;
+        };
+    }, [fetchOrders]);
 
     const handleStatusUpdate = async (orderItemId: string, newStatus: string) => {
         const toastId = toast.loading("Updating status...");
-
-        const result = await updateOrderItemStatus(orderItemId, newStatus);
-
-        if (result.ok) {
-            toast.success("Status updated successfully", { id: toastId });
-            fetchOrders();
-        } else {
-            toast.error(result.error?.message || "Failed to update", { id: toastId });
+        try {
+            const result = await updateOrderItemStatus(orderItemId, newStatus);
+            if (result?.ok) {
+                toast.success("Status updated successfully", { id: toastId });
+                await fetchOrders();
+            } else {
+                toast.error(result?.error?.message || "Failed to update", { id: toastId });
+            }
+        } catch (err) {
+            console.error("Update error:", err);
+            toast.error("Network error", { id: toastId });
         }
     };
 
@@ -92,6 +112,7 @@ export default function SellerOrdersPage() {
         );
     }
 
+
     return (
         <div className="space-y-6">
             <div>
@@ -102,7 +123,7 @@ export default function SellerOrdersPage() {
             </div>
 
             <div className="space-y-4">
-                {orders.map((order: any) => (
+                {orders.map((order: Order) => (
                     <Card key={order.id}>
                         <CardHeader>
                             <div className="flex items-center justify-between">
@@ -114,7 +135,7 @@ export default function SellerOrdersPage() {
                                         {format(new Date(order.createdAt), "PPP 'at' p")}
                                     </p>
                                 </div>
-                                <Badge variant={getStatusColor(order.status) as any}>
+                                <Badge variant={getStatusColor(order.status)}>
                                     {order.status}
                                 </Badge>
                             </div>
@@ -139,13 +160,13 @@ export default function SellerOrdersPage() {
 
                             {/* Order Items */}
                             <div className="space-y-3">
-                                {order.items.map((item: any) => (
+                                {order.items.map((item: OrderItem) => (
                                     <div
                                         key={item.id}
                                         className="flex items-center gap-4 p-3 border rounded-lg"
                                     >
                                         {/* Medicine Image */}
-                                        <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border">
+                                        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md border">
                                             {item.medicine.imageUrl ? (
                                                 <Image
                                                     src={item.medicine.imageUrl}
@@ -163,25 +184,27 @@ export default function SellerOrdersPage() {
 
                                         {/* Medicine Details */}
                                         <div className="flex-1">
-                                            <h4 className="font-semibold">{item.medicine.name}</h4>
-                                            <div className="text-sm text-muted-foreground">
-                                                Qty: {item.quantity} × ৳{item.unitPrice.toFixed(2)}
-                                            </div>
-                                            <div className="text-sm font-medium">
-                                                Total: ৳{(item.quantity * item.unitPrice).toFixed(2)}
-                                            </div>
+                                            <Link href={`/shop/${item.id}`}>
+                                                <h4 className="font-semibold hover:text-blue-500">{item.medicine.name}</h4>
+                                                <div className="text-sm text-muted-foreground">
+                                                    Qty: {item.quantity} × ৳{item.unitPrice.toFixed(2)}
+                                                </div>
+                                                <div className="text-sm font-medium">
+                                                    Total: ৳{(item.quantity * item.unitPrice).toFixed(2)}
+                                                </div>
+                                            </Link>
                                         </div>
 
                                         {/* Status Update */}
                                         <div className="flex flex-col gap-2 items-end">
-                                            <Badge variant={getStatusColor(item.orderItemStatus) as any}>
+                                            <Badge variant={getStatusColor(item.orderItemStatus)}>
                                                 {item.orderItemStatus}
                                             </Badge>
                                             <Select
                                                 value={item.orderItemStatus}
                                                 onValueChange={(val) => handleStatusUpdate(item.id, val)}
                                             >
-                                                <SelectTrigger className="w-[180px]">
+                                                <SelectTrigger className="w-[45]">
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>

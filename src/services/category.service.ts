@@ -1,10 +1,11 @@
 /**
- * Category Service
- * Handles category-related API calls
+ * Category Service - Complete CRUD
+ * All category-related API calls
  */
 
 import { env } from "@/env";
-import { ApiResponse, Category } from "@/types/dashboard.type";
+import { ApiResponse, Category } from "@/types";
+import { cookies } from "next/headers";
 
 const API_URL = env.API_URL;
 
@@ -12,7 +13,7 @@ const API_URL = env.API_URL;
  * Get all categories
  * GET /api/categories
  */
-const getAllCategories = async (): Promise<ApiResponse<Category[]>> => {
+const getAll = async (): Promise<ApiResponse<Category[]>> => {
     try {
         const res = await fetch(`${API_URL}/categories`, {
             method: "GET",
@@ -40,7 +41,7 @@ const getAllCategories = async (): Promise<ApiResponse<Category[]>> => {
             error: null,
         };
     } catch (err) {
-        console.error("category.service.getAllCategories error:", err);
+        console.error("category.service.getAll error:", err);
         return {
             ok: false,
             status: 0,
@@ -54,7 +55,7 @@ const getAllCategories = async (): Promise<ApiResponse<Category[]>> => {
  * Get category by ID
  * GET /api/categories/:id
  */
-const getCategoryById = async (id: string): Promise<ApiResponse<Category>> => {
+const getById = async (id: string): Promise<ApiResponse<Category>> => {
     try {
         const res = await fetch(`${API_URL}/categories/${id}`, {
             method: "GET",
@@ -82,7 +83,157 @@ const getCategoryById = async (id: string): Promise<ApiResponse<Category>> => {
             error: null,
         };
     } catch (err) {
-        console.error("category.service.getCategoryById error:", err);
+        console.error("category.service.getById error:", err);
+        return {
+            ok: false,
+            status: 0,
+            data: null,
+            error: { message: "Network error" }
+        };
+    }
+};
+
+/**
+ * Create category (Admin only)
+ * POST /api/categories
+ */
+const create = async (data: {
+    name: string;
+    slug?: string;
+    description?: string;
+    isPrescriptionRequired?: boolean;
+}): Promise<ApiResponse<Category>> => {
+    const cookieStore = await cookies();
+
+    try {
+        const res = await fetch(`${API_URL}/categories`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Cookie: cookieStore.toString(),
+            },
+            body: JSON.stringify(data),
+            credentials: "include",
+        });
+
+        const body = await res.json().catch(() => null);
+
+        if (!res.ok) {
+            return {
+                ok: false,
+                status: res.status,
+                data: null,
+                error: { message: body?.message ?? "Failed to create category" },
+            };
+        }
+
+        return {
+            ok: true,
+            status: res.status,
+            data: body ?? null,
+            error: null,
+        };
+    } catch (err) {
+        console.error("category.service.create error:", err);
+        return {
+            ok: false,
+            status: 0,
+            data: null,
+            error: { message: "Network error" }
+        };
+    }
+};
+
+/**
+ * Update category (Admin only)
+ * PUT /api/categories/:id
+ */
+const update = async (
+    id: string,
+    data: {
+        name?: string;
+        slug?: string;
+        description?: string;
+        isPrescriptionRequired?: boolean;
+    }
+): Promise<ApiResponse<Category>> => {
+    const cookieStore = await cookies();
+
+    try {
+        const res = await fetch(`${API_URL}/categories/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Cookie: cookieStore.toString(),
+            },
+            body: JSON.stringify(data),
+            credentials: "include",
+        });
+
+        const body = await res.json().catch(() => null);
+
+        if (!res.ok) {
+            return {
+                ok: false,
+                status: res.status,
+                data: null,
+                error: { message: body?.message ?? "Failed to update category" },
+            };
+        }
+
+        return {
+            ok: true,
+            status: res.status,
+            data: body ?? null,
+            error: null,
+        };
+    } catch (err) {
+        console.error("category.service.update error:", err);
+        return {
+            ok: false,
+            status: 0,
+            data: null,
+            error: { message: "Network error" }
+        };
+    }
+};
+
+/**
+ * Delete category (Admin only)
+ * DELETE /api/categories/:id
+ */
+const deleteCat = async (id: string): Promise<ApiResponse<Category>> => {
+    const cookieStore = await cookies();
+
+    try {
+        const res = await fetch(`${API_URL}/categories/${id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                Cookie: cookieStore.toString(),
+            },
+            credentials: "include",
+        });
+
+        const body = await res.json().catch(() => null);
+
+        if (!res.ok) {
+            return {
+                ok: false,
+                status: res.status,
+                data: null,
+                error: { message: body?.message ?? "Failed to delete category" },
+            };
+        }
+
+        return {
+            ok: true,
+            status: res.status,
+            data: body ?? null,
+            error: null,
+        };
+    } catch (err) {
+        console.error("category.service.delete error:", err);
         return {
             ok: false,
             status: 0,
@@ -93,6 +244,9 @@ const getCategoryById = async (id: string): Promise<ApiResponse<Category>> => {
 };
 
 export const categoryService = {
-    getAllCategories,
-    getCategoryById,
+    getAll,
+    getById,
+    create,
+    update,
+    delete: deleteCat,
 };
