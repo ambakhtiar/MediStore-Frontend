@@ -1,24 +1,23 @@
-import MedicineCard from "@/components/modules/homepage/MedicineCard";
-import { medicineService } from "@/services/medicine.service";
-import type { MedicineType } from "@/types/medicine.type";
+/**
+ * Shop Page - Server Component Wrapper
+ * Path: src/app/shop/page.tsx
+ * 
+ * This is a server component that fetches initial data
+ * and passes it to the client component
+ */
 
-export default async function ShopPage() {
-    const { data } = await medicineService.getAllMedicine();
-    const items: MedicineType[] = data?.data?.data ?? [];
-    // console.log(items);
+import { getCategories } from "@/action/category.action";
+import ShopPageClient from "./shop-client";
 
-    return (
-        <section className="py-8">
-            <div className="max-w-7xl mx-auto px-4">
-                <h1 className="text-2xl font-bold mb-6">Shop</h1>
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {
-                        items.map((item: MedicineType) => (
-                            <MedicineCard key={item.id} {...item} />
-                        ))
-                    }
-                </div>
-            </div>
-        </section>
-    );
+export default async function ShopPage({
+    searchParams,
+}: {
+    searchParams: { [key: string]: string | string[] | undefined };
+}) {
+    // Fetch categories on server
+    const categoriesRes = await getCategories();
+    const categories = categoriesRes?.data?.data || [];
+
+    // Pass to client component
+    return <ShopPageClient categories={categories} searchParams={searchParams} />;
 }

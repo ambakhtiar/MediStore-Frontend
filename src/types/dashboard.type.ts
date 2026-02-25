@@ -59,55 +59,6 @@ export interface Category {
 export type UserRole = "CUSTOMER" | "SELLER" | "ADMIN";
 export type UserStatus = "UNBAN" | "BAN";
 
-// export interface User {
-//     id: string;
-//     name: string;
-//     email: string;
-//     emailVerified: boolean;
-//     image?: string | null;
-//     phone?: string | null;
-//     role: UserRole;
-//     status: UserStatus;
-//     createdAt: string;
-//     updatedAt: string;
-// }
-
-// ============= ORDER TYPES =============
-
-// export type OrderStatus =
-//     | "PLACED"
-//     | "CONFIRMS"
-//     | "PROCESSING"
-//     | "SHIPPED"
-//     | "DELIVERED"
-//     | "CANCELLED";
-
-// export interface OrderItem {
-//     id: string;
-//     orderId: string;
-//     medicineId: string;
-//     quantity: number;
-//     unitPrice: number;
-//     orderItemStatus: OrderStatus;
-//     createdAt: string;
-//     updatedAt: string;
-//     medicine: Medicine;
-// }
-
-// export interface Order {
-//     id: string;
-//     userId: string;
-//     total: number;
-//     status: OrderStatus;
-//     shippingName?: string | null;
-//     shippingPhone: string;
-//     shippingAddress: string;
-//     createdAt: string;
-//     updatedAt: string;
-//     items: OrderItem[];
-//     user?: User;
-// }
-
 // ============= DASHBOARD STATS TYPES =============
 
 export interface SellerStats {
