@@ -28,7 +28,9 @@ import { getSellerMedicines, deleteMedicine } from "@/action/dashboard.action";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Medicine, MedicineType } from "@/types";
+import { Medicine } from "@/types";
+export const dynamic = "force-dynamic";
+// export const fetchCache = "force-no-store"; // optional
 
 export default function SellerMedicinesPage() {
     const [medicines, setMedicines] = useState<Medicine[]>([]);

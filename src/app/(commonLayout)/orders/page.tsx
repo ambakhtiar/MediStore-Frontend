@@ -3,8 +3,9 @@ import { getOrders } from "@/action/order.action";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
-import { bn } from "date-fns/locale";
 import { Order } from "@/types";
+export const dynamic = "force-dynamic";
+// export const fetchCache = "force-no-store";
 
 // Status badge variants
 const getStatusVariant = (status: string): "secondary" | "default" | "outline" | "destructive" => {

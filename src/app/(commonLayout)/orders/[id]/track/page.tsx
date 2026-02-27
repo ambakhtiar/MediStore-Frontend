@@ -1,15 +1,3 @@
-/**
- * Order Tracking Page
- * Path: src/app/orders/[id]/track/page.tsx
- *
- * What it does: Displays the order status timeline
- *
- * Features:
- * - Visual timeline with dates
- * - Current status highlight
- * - Link back to order details
- */
-
 import { notFound } from "next/navigation";
 import { getOrder, getOrderStatusHistory } from "@/action/order.action";
 import OrderTrackingTimeline from "@/components/modules/order/OrderTrackingTimeline";

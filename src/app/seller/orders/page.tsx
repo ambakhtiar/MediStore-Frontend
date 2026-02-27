@@ -9,7 +9,6 @@ import { useCallback, useEffect, useState } from "react";
 import { getSellerOrders, updateOrderItemStatus } from "@/action/dashboard.action";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
     Select,
     SelectContent,
@@ -22,6 +21,8 @@ import Image from "next/image";
 import { format } from "date-fns";
 import { Order, OrderItem } from "@/types";
 import Link from "next/link";
+export const dynamic = "force-dynamic";
+// export const fetchCache = "force-no-store"; // optional
 
 const STATUS_OPTIONS = [
     { value: "PLACED", label: "Placed" },

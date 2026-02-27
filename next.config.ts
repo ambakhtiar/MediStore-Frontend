@@ -35,7 +35,15 @@ const nextConfig: NextConfig = {
 
         ],
     },
-    allowedDevOrigins: ["http://192.168.0.104:3000"],
+    // allowedDevOrigins: ["http://192.168.0.104:3000"],
+    async rewrites() {
+        return [
+            {
+                source: "/api/auth/:path*",
+                destination: `${process.env.NEXT_PUBLIC_URL}/api/auth/:path*`,
+            },
+        ];
+    },
 };
 
 module.exports = nextConfig;

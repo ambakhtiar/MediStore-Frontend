@@ -239,6 +239,8 @@ import { format } from "date-fns";
 import Link from "next/link";
 import { toast } from "sonner";
 import { updateOrderStatus } from "@/action/dashboard.action";
+export const dynamic = "force-dynamic";
+// export const fetchCache = "force-no-store"; // optional
 
 
 type StatusVariant = "secondary" | "default" | "outline" | "destructive";

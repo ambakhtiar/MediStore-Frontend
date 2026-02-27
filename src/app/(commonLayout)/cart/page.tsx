@@ -3,6 +3,8 @@ import { getCart } from "@/action/cart.action";
 import Image from "next/image";
 import { CartItemType } from "@/types/cart.type";
 import CartItemControls from "@/components/modules/cart/CartItemControls";
+export const dynamic = "force-dynamic";
+// export const fetchCache = "force-no-store";
 
 export default async function CartPage() {
     const res = await getCart();

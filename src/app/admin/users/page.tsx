@@ -16,6 +16,8 @@ import { Button } from "@/components/ui/button";
 import { Shield, ShieldOff } from "lucide-react";
 import type { User } from "@/types";
 import { getAllUsers, updateUserStatus } from "@/action/dashboard.action";
+export const dynamic = "force-dynamic";
+// export const fetchCache = "force-no-store"; // optional
 
 export default function AdminUsersPage() {
     const [users, setUsers] = useState<User[]>([]);

@@ -15,6 +15,8 @@ import { notFound } from "next/navigation";
 import { getMedicineById } from "@/action/medicine.action";
 import ReviewForm from "@/components/modules/review/ReviewForm";
 import Link from "next/link";
+export const dynamic = "force-dynamic";
+// export const fetchCache = "force-no-store";
 
 export default async function CreateReviewPage({
     params

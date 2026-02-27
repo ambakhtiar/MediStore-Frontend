@@ -8,6 +8,9 @@
 
 import { getCategories } from "@/action/category.action";
 import ShopPageClient from "./shop-client";
+export const dynamic = "force-dynamic";
+// export const fetchCache = "force-no-store";
+
 
 export default async function ShopPage({
     searchParams,

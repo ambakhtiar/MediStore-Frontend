@@ -1,5 +1,8 @@
 import { LoginForm } from "@/components/modules/authentication/login-form";
 import { Suspense } from "react";
+export const dynamic = "force-dynamic";
+// export const fetchCache = "force-no-store";
+
 
 export default function LoginPage() {
     return (

@@ -61,8 +61,7 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
                     name: value.name,
                     email: value.email,
                     password: value.password,
-                    // Pass role as extra field — ensure your better-auth config accepts it
-                    // If not, you'll need to call your own API endpoint instead
+
                     // @ts-expect-error — custom field
                     role: value.role,
                 });
@@ -207,3 +206,4 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
         </Card>
     );
 }
+

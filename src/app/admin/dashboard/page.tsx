@@ -63,6 +63,8 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AdminStats } from "@/types";
+export const dynamic = "force-dynamic";
+// export const fetchCache = "force-no-store"; // optional
 
 export default async function AdminDashboardPage() {
     const statsRes = await getAdminDashboardStats();

@@ -47,7 +47,7 @@ interface MedicineFormProps {
 
 export default function MedicineForm({
     categories,
-    initialData,
+    initialData = {},
     isEdit = false
 }: MedicineFormProps) {
     const router = useRouter();

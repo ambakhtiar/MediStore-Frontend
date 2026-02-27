@@ -3,7 +3,8 @@ import { getCategories } from "@/action/category.action";
 import MedicineForm from "@/components/dashboard/MedicineForm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+export const dynamic = "force-dynamic";
+// export const fetchCache = "force-no-store";
 
 
 export default async function EditMedicinePage({

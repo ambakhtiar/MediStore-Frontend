@@ -29,7 +29,11 @@ interface Category {
 interface Filters {
     category?: string;
     search?: string;
-    // Add other filter fields as needed
+    minPrice?: number,
+    maxPrice?: number,
+    sortBy?: string,
+    sortOrder?: string,
+    inStock?: boolean,
 }
 
 interface MedicineFiltersProps {

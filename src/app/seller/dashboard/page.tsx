@@ -4,8 +4,9 @@ import { Package, ShoppingCart, DollarSign, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { MedicineFilters, MedicineType } from "@/types";
-import { Order, OrderItem } from "@/types/dashboard.type";
+import { MedicineFilters, MedicineType, Order, OrderItem } from "@/types";
+export const dynamic = "force-dynamic";
+// export const fetchCache = "force-no-store"; // optional
 
 export default async function SellerDashboardPage() {
     // Fetch seller data

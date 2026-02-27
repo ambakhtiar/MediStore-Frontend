@@ -48,6 +48,8 @@ import {
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Category } from "@/types";
+export const dynamic = "force-dynamic";
+// export const fetchCache = "force-no-store"; // optional
 
 export default function AdminCategoriesPage() {
     const [categories, setCategories] = useState<Category[]>([]);

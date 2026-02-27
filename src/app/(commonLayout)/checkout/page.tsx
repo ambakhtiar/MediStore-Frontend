@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { getCart } from "@/action/cart.action";
 import CheckoutForm from "@/components/modules/checkout/CheckoutForm";
 import Link from "next/link";
+export const dynamic = "force-dynamic";
+// export const fetchCache = "force-no-store";
 
 export default async function CheckoutPage() {
     // Fetch cart data
