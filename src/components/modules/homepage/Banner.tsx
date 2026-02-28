@@ -23,10 +23,6 @@ export default function HeroBanner() {
                         <Link href="/shop" className="inline-flex items-center justify-center px-6 py-3 rounded-md bg-black text-white hover:opacity-95 transition">
                             Shop Now
                         </Link>
-
-                        <Link href="/about" className="inline-flex items-center justify-center px-6 py-3 rounded-md border border-gray-200 dark:border-gray-700 text-sm text-gray-700 dark:text-gray-200">
-                            Learn More
-                        </Link>
                     </div>
 
                     {/* Avatars + stat: use small fixed avatars so they don't expand */}
@@ -35,7 +31,7 @@ export default function HeroBanner() {
                         </div>
 
                         <div className="text-sm text-gray-700 dark:text-gray-300">
-                            <strong className="text-black dark:text-white">100k+</strong> Satisfied Customers
+                            <strong className="text-black dark:text-white">1k+</strong> Satisfied Customers
                         </div>
                     </div>
                 </div>

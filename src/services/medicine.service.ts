@@ -57,7 +57,7 @@ export const medicineService = {
                 return { data: null, error: `Request failed with status ${res.status}`, status: res.status };
             }
             const data = await res.json();
-            console.log(data);
+            // console.log(data);
             return { data, error: null, status: res.status };
         } catch (err) {
             console.error("getMedicineById error:", err);

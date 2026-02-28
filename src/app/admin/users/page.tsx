@@ -29,7 +29,7 @@ export default function AdminUsersPage() {
         try {
             const res = await getAllUsers();
 
-            console.log(res);
+            // console.log(res);
             const data = res?.data?.data ?? [];
             setUsers(data);
         } catch (err) {

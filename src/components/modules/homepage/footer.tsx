@@ -10,7 +10,7 @@ interface MenuItem {
     }[];
 }
 
-interface Footer2Props {
+interface FooterProps {
     logo?: {
         url: string;
         src: string;
@@ -27,7 +27,7 @@ interface Footer2Props {
     }[];
 }
 
-const Footer2 = ({
+const Footer = ({
     logo = {
         src: "/medistore-logo.svg",
         alt: "MediStore logo",
@@ -41,17 +41,16 @@ const Footer2 = ({
             title: "Product",
             links: [
                 { text: "Overview", url: "#" },
-                { text: "Medicines", url: "#" },
-                { text: "Marketplace", url: "#" },
+                { text: "Medicines", url: "/shop" },
                 { text: "Features", url: "#" },
             ],
         },
         {
             title: "Social",
             links: [
-                { text: "Twitter", url: "#" },
-                { text: "Instagram", url: "#" },
-                { text: "LinkedIn", url: "#" },
+                { text: "Facebook", url: "https://www.facebook.com" },
+                { text: "LinkedIn", url: "https://linkedin.com" },
+                { text: "Instagram", url: "https://www.instagram.com" },
             ],
         },
     ],
@@ -60,7 +59,7 @@ const Footer2 = ({
         { text: "Terms and Conditions", url: "#" },
         { text: "Privacy Policy", url: "#" },
     ],
-}: Footer2Props) => {
+}: FooterProps) => {
     return (
         <section className={cn("py-32", className)}>
             <div className="container">
@@ -112,4 +111,4 @@ const Footer2 = ({
     );
 };
 
-export { Footer2 };
+export { Footer };

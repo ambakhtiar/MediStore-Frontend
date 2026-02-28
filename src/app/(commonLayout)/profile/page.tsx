@@ -95,7 +95,7 @@ export default function ProfilePage() {
                                 <p className="text-xs text-muted-foreground">Manage your users and orders</p>
                             </div>
                             <Button variant="outline" size="sm" asChild>
-                                <Link href="/admin">Go to Dashboard</Link>
+                                <Link href="/admin/dashboard">Go to Dashboard</Link>
                             </Button>
                         </div>
                     </CardContent>

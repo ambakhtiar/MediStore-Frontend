@@ -38,7 +38,7 @@ async function updateProfile(payload: UpdateProfilePayload): Promise<ProfileData
 
     const json = await res.json();
     if (!res) throw new Error(json.message || "Failed to update profile");
-    console.log(res);
+    // console.log(res);
     return json.data;
 }
 
@@ -57,7 +57,7 @@ async function changePassword(payload: ChangePasswordPayload): Promise<void> {
     });
 
     const json = await res.json();
-    console.log(res);
+    // console.log(res);
     if (!res) throw new Error(json.message || "Failed to change password");
 }
 

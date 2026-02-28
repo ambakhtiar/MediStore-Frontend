@@ -118,7 +118,7 @@ const getDashboardStats = async () => {
         const orderData = orders?.data || [];
         const medicineData = medicines?.data?.data || [];
 
-        console.log(userData, orderData, medicineData);
+        // console.log(userData, orderData, medicineData);
 
         const stats = {
             totalUsers: userData.length,

@@ -29,7 +29,7 @@ export default function PaginationControls({ meta }: PaginationControlsProps) {
         params.set("page", page.toString());
         router.push(`?${params.toString()}`);
         // router.push("/dashboard/create-blogs"); // Example
-        console.log(params);
+        // console.log(params);
     };
 
     //* Showing 1 to 10 of 21 -> page 1

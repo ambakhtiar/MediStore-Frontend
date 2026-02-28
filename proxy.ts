@@ -14,15 +14,15 @@ export async function proxy(request: NextRequest) {
         isAuthenticated = true;
         role = data?.user?.role;
     }
-
+    console.log(pathname, data);
     //* User in not authenticated at all
     if (!isAuthenticated) {
         return NextResponse.redirect(new URL("/login", request.url));
     }
 
     // Role-based guards
-    // Admin routes
-    if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    // Admin routes 
+    if (pathname === "/admin" || pathname.startsWith("/admin")) {
         if (role !== Roles.admin) {
             return NextResponse.redirect(new URL("/", request.url));
         }
@@ -30,7 +30,7 @@ export async function proxy(request: NextRequest) {
     }
 
     // Seller routes
-    if (pathname === "/seller" || pathname.startsWith("/seller/")) {
+    if (pathname === "/seller" || pathname.startsWith("/seller")) {
         if (role !== Roles.seller) {
             return NextResponse.redirect(new URL("/", request.url));
         }
@@ -38,13 +38,23 @@ export async function proxy(request: NextRequest) {
     }
 
     // Customer-only routes (optional)
-    // Example: if you want /dashboard to be customer-only uncomment:
-    // if (pathname === "/dashboard" || pathname.startsWith("/dashboard/")) {
-    //   if (role !== Roles.customer) {
-    //     return NextResponse.redirect(new URL("/", request.url));
-    //   }
-    //   return NextResponse.next();
-    // }
+    if (
+        pathname === "/cart" ||
+        pathname.startsWith("/cart") ||
+        pathname === "/orders" ||
+        pathname.startsWith("/orders") ||
+        pathname === "/review" ||
+        pathname.startsWith("/reviews") ||
+        pathname === "/checkout"
+    ) {
+        if (role !== Roles.customer) {
+            // যদি role customer না হয়, হোমপেজে রিডাইরেক্ট করবে
+            return NextResponse.redirect(new URL("/", request.url));
+        }
+        // customer হলে এগুলোতে যেতে পারবে
+        return NextResponse.next();
+    }
+
 
     // All other matched routes are allowed for any authenticated user
     return NextResponse.next();
@@ -60,6 +70,8 @@ export const config = {
         "/cart",
         "/orders",
         "/orders/:path*",
+        "/reviews",
+        "/reviews/:path*",
         "/profile",
         "/checkout",
         "/track"

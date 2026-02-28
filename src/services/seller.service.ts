@@ -274,7 +274,7 @@ const updateOrderItemStatus = async (orderItemId: string, status: string) => {
                 error: { message: body?.message ?? "Failed to update status" },
             };
         }
-        console.log(body);
+        // console.log(body);
         return {
             ok: true,
             status: res.status,
