@@ -88,7 +88,7 @@ export default function ShopPageClient({ categories, searchParams }: ShopPageCli
                 const data = await getAllMedicine();
 
                 const items = data?.data?.data?.data ?? [];
-                console.log(items);
+                // console.log(items);
                 const pagination = data?.data?.data?.pagination;
 
                 setMedicines(items);

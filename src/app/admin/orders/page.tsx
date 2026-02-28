@@ -51,7 +51,7 @@ export default function AdminOrdersPageComplete() {
             const list = res?.data?.data ?? [];
             setOrders(list);
 
-            console.log(list);
+            // console.log(list);
         } catch (err) {
             console.error("Failed to fetch orders:", err);
             setOrders([]);

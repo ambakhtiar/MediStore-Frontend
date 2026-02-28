@@ -83,14 +83,23 @@ const Footer = ({
                             <div key={sectionIdx}>
                                 <h3 className="mb-4 font-bold">{section.title}</h3>
                                 <ul className="space-y-4 text-muted-foreground">
-                                    {section.links.map((link, linkIdx) => (
-                                        <li
-                                            key={linkIdx}
-                                            className="font-medium hover:text-primary"
-                                        >
-                                            <a href={link.url}>{link.text}</a>
-                                        </li>
-                                    ))}
+                                    {section.links.map((link, linkIdx) => {
+                                        const href = link.url || "#";
+                                        const openInNewTab = /^https?:\/\//.test(href);
+                                        return (
+                                            <li
+                                                key={linkIdx}
+                                                className="font-medium hover:text-primary"
+                                            >
+                                                <a
+                                                    href={href}
+                                                    {...(openInNewTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                                                >
+                                                    {link.text}
+                                                </a>
+                                            </li>
+                                        );
+                                    })}
                                 </ul>
                             </div>
                         ))}

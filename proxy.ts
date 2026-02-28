@@ -14,7 +14,7 @@ export async function proxy(request: NextRequest) {
         isAuthenticated = true;
         role = data?.user?.role;
     }
-    console.log(pathname, data);
+
     //* User in not authenticated at all
     if (!isAuthenticated) {
         return NextResponse.redirect(new URL("/login", request.url));
