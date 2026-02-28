@@ -81,6 +81,12 @@ export default async function OrdersPage() {
                                                 })}
                                             </CardDescription>
                                         </div>
+                                        <div>
+                                            {
+                                                order.status === "DELIVERED" &&
+                                                <Link href={"/reviews"} className="text-blue-700">Give Review</Link>
+                                            }
+                                        </div>
                                         <Badge variant={getStatusVariant(order.status)}>
                                             {getStatusText(order.status)}
                                         </Badge>

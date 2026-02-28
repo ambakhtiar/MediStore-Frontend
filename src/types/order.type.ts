@@ -10,6 +10,15 @@ export type OrderStatus =
     | "DELIVERED"
     | "CANCELLED";
 
+export enum OrderStatusEnum {
+    PLACED = "PLACED",
+    PROCESSING = "PROCESSING",
+    CONFIRMS = "CONFIRMS",
+    SHIPPED = "SHIPPED",
+    DELIVERED = "DELIVERED",
+    CANCELLED = "CANCELLED",
+}
+
 // Status History Entry
 export interface OrderStatusHistory {
     id: string;

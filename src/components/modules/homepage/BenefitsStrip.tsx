@@ -12,7 +12,7 @@ type Benefit = {
 const benefits: Benefit[] = [
     {
         title: "Free Shipping",
-        subtitle: "Order Over $600",
+        subtitle: "Order Over ৳600",
         icon: (
             <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" aria-hidden>
                 <path d="M3 7h11v6H3z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
