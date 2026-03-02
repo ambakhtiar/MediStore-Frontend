@@ -185,7 +185,7 @@ export default function SellerOrdersPage() {
 
                                         {/* Medicine Details */}
                                         <div className="flex-1">
-                                            <Link href={`/shop/${item.id}`}>
+                                            <Link href={`/shop/${item.medicineId}`}>
                                                 <h4 className="font-semibold hover:text-blue-500">{item.medicine.name}</h4>
                                                 <div className="text-sm text-muted-foreground">
                                                     Qty: {item.quantity} × ৳{item.unitPrice.toFixed(2)}

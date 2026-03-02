@@ -128,7 +128,9 @@ export default function AdminOrdersPageComplete() {
                                             <TableCell>
                                                 <div>
                                                     <p className="font-medium">{order.user?.name || order.shippingName || "—"}</p>
-                                                    <p className="text-sm text-muted-foreground">{order.user?.email || order.shippingPhone}</p>
+                                                    <p className="font-medium">{order.shippingPhone || "—"}</p>v
+                                                    {/* <p className="font-medium">{order.shippingAddress || "—"}</p> */}
+                                                    {/* <p className="text-sm text-muted-foreground">{order.user?.email}</p> */}
                                                 </div>
                                             </TableCell>
                                             <TableCell>{order.items?.length || 0} items</TableCell>
@@ -176,7 +178,9 @@ export default function AdminOrdersPageComplete() {
                                                             {order.items.map((item: OrderItem) => (
                                                                 <div key={item.id} className="flex items-center justify-between p-3 bg-background rounded border">
                                                                     <div>
-                                                                        <p className="font-medium">{item.medicine.name}</p>
+                                                                        <Link href={`/shop/${item.medicine.id}`}><p className="font-medium text-blue-500">{item.medicine.name}</p></Link>
+                                                                        <p className="font-medium"><span className="font-semibold">Seller Name: </span>{item.medicine?.seller?.name || " "}</p>
+                                                                        <p className="font-medium"><span className="font-semibold">Seller Number: </span>{item.medicine?.seller?.phone || " "}</p>
                                                                         <p className="text-sm text-muted-foreground">Qty: {item.quantity} × ৳{item.unitPrice.toFixed(2)}</p>
                                                                     </div>
                                                                     <div className="text-right">

@@ -45,6 +45,14 @@ export interface OrderItem {
         imageUrl?: string | null;
         genericName?: string | null;
         manufacturer?: string | null;
+        sellerId?: string | null;
+        seller?: {
+            id: string;
+            name: string;
+            email: string;
+            image: string | null;
+            phone: string | null;
+        } | null;
     };
 }
 

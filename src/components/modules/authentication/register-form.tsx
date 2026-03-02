@@ -42,7 +42,7 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
     const handleGoogleLogin = async () => {
         await authClient.signIn.social({
             provider: "google",
-            callbackURL: "http://localhost:3000",
+            callbackURL: "/",
         });
     };
 
@@ -57,7 +57,7 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
         onSubmit: async ({ value }) => {
             const toastId = toast.loading("Creating your account...");
             try {
-                const { data, error } = await authClient.signUp.email({
+                const { error } = await authClient.signUp.email({
                     name: value.name,
                     email: value.email,
                     password: value.password,

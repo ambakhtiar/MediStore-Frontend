@@ -54,7 +54,7 @@ export default function Sidebar({ role }: { role: "seller" | "admin" }) {
                     {role === "seller" ? "Seller" : "Admin"} Panel
                 </h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                    Medicine Store
+                    MediStore
                 </p>
             </div>
 
