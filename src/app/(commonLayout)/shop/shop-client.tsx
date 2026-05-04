@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import MedicineCard from "@/components/modules/homepage/MedicineCard";
+import MedicineCard, { MedicineCardSkeleton } from "@/components/modules/homepage/MedicineCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -150,11 +150,13 @@ export default function ShopPageClient({ categories, searchParams }: ShopPageCli
                 <div className="flex-1 relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
+                        type="text"
                         placeholder="Search medicines..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && applyFilters(1)}
                         className="pl-10"
+                        suppressHydrationWarning
                     />
                 </div>
                 <Button onClick={() => applyFilters(1)}>Search</Button>
@@ -222,9 +224,11 @@ export default function ShopPageClient({ categories, searchParams }: ShopPageCli
                             <div className="space-y-1.5">
                                 <Label>Manufacturer</Label>
                                 <Input
+                                    type="text"
                                     placeholder="e.g., Square Pharmaceuticals"
                                     value={manufacturer}
                                     onChange={(e) => setManufacturer(e.target.value)}
+                                    suppressHydrationWarning
                                 />
                             </div>
 
@@ -328,8 +332,8 @@ export default function ShopPageClient({ categories, searchParams }: ShopPageCli
             {/* Grid */}
             {loading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {Array.from({ length: 8 }).map((_, i) => (
-                        <div key={i} className="h-64 rounded-xl bg-muted animate-pulse" />
+                    {Array.from({ length: 12 }).map((_, i) => (
+                        <MedicineCardSkeleton key={i} />
                     ))}
                 </div>
             ) : medicines.length === 0 ? (

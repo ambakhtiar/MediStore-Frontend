@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { MedicineFilters, MedicineType, Order, OrderItem } from "@/types";
+import SellerCharts from "@/components/dashboard/SellerCharts";
 export const dynamic = "force-dynamic";
 // export const fetchCache = "force-no-store"; // optional
 
@@ -163,6 +164,9 @@ export default async function SellerDashboardPage() {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Seller Charts */}
+            <SellerCharts medicines={medicines} orders={orders} />
         </div>
     );
 }

@@ -1,45 +1,4 @@
-// "use client";
-// import { Button } from "@/components/ui/button";
-// import { cancelOrder } from "@/action/order.action";
-// import { toast } from "sonner";
-// import { useRouter } from "next/navigation";
-
-// export default function CancelOrderButton({ orderId }: { orderId: string }) {
-//     const router = useRouter();
-
-//     const handleCancel = async () => {
-//         if (!confirm("Are you want to cencel order?")) return;
-
-//         const res = await cancelOrder(orderId);
-//         if (res.ok) {
-//             toast.success("Order Succefullt Cencel");
-//             router.refresh();
-//         } else {
-//             toast.error("Order cencel failed");
-//         }
-//     };
-
-//     return (
-//         <Button variant="destructive" onClick={handleCancel} className="w-full">
-//             Order Cencel
-//         </Button>
-//     );
-// }
-
 "use client";
-
-/**
- * Cancel Order Button Component
- *
- * What it does: Order cancel button with confirmation
- * Where to use: Order details page (only for PLACED status)
- *
- * Features:
- * - Confirmation dialog
- * - Loading state
- * - Success/error toast
- * - Auto refresh after cancel
- */
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
