@@ -120,6 +120,7 @@ export default function AdminOrdersPage() {
             </div>
 
             <DataTable
+                searchPlaceholder="Search by ID, user, or product name..."
                 searchValue={params.search || ""}
                 onSearch={onSearch}
                 limitValue={params.limit}

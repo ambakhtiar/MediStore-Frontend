@@ -18,6 +18,7 @@ import { authClient } from "@/lib/auth-client";
 
 const sellerLinks = [
     { href: "/seller/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/seller/analytics", label: "Analytics", icon: BarChart3 },
     { href: "/seller/medicines", label: "My Medicines", icon: Package },
     { href: "/seller/orders", label: "Orders", icon: ShoppingCart },
 ];
@@ -57,11 +58,11 @@ export default function Sidebar({ role, isMobile, onMobileClose }: { role: "sell
     return (
         <aside className="w-64 border-r bg-card flex flex-col h-full">
             {/* Header */}
-            <div className="p-6 border-b">
+            <div className="p-4 border-b">
                 <h2 className="text-xl font-bold">
                     {role === "seller" ? "Seller" : "Admin"} Panel
                 </h2>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground">
                     MediStore
                 </p>
             </div>

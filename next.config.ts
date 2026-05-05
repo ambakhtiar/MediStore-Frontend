@@ -38,6 +38,11 @@ const nextConfig: NextConfig = {
                 hostname: "api.dicebear.com",
                 pathname: "/**",
             },
+            {
+                protocol: "https",
+                hostname: "www.bidaluku.us",
+                pathname: "/**",
+            },
         ],
     },
     // allowedDevOrigins: ["http://192.168.0.104:3000"],

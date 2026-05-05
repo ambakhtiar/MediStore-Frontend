@@ -15,14 +15,14 @@ export default function DashboardLayout({ children, role }: DashboardLayoutProps
     const [mobileOpen, setMobileOpen] = useState(false);
 
     return (
-        <div className="flex h-screen bg-background overflow-hidden">
+        <div className="fixed inset-0 flex bg-background overflow-hidden z-0">
             {/* Desktop Sidebar */}
             <div className="hidden md:flex h-full">
                 <Sidebar role={role} />
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col h-screen overflow-hidden">
+            <div className="flex-1 flex flex-col h-full overflow-hidden">
                 {/* Mobile Header */}
                 <header className="md:hidden flex items-center justify-between px-4 py-3 border-b bg-card">
                     <div className="font-bold text-lg">{role === "seller" ? "Seller" : "Admin"} Panel</div>

@@ -11,8 +11,8 @@ import { CreateMedicineType, MedicineType } from "@/types";
 
 // ============= SELLER MEDICINE ACTIONS =============
 
-export const getSellerMedicines = async () => {
-    return await sellerService.getMedicines();
+export const getSellerMedicines = async (params?: any) => {
+    return await sellerService.getMedicines(params);
 };
 
 export const addMedicine = async (payload: CreateMedicineType) => {
@@ -51,8 +51,8 @@ export const deleteMedicine = async (id: string) => {
 
 // ============= SELLER ORDER ACTIONS =============
 
-export const getSellerOrders = async () => {
-    return await sellerService.getOrders();
+export const getSellerOrders = async (params?: any) => {
+    return await sellerService.getOrders(params);
 };
 
 export const updateOrderItemStatus = async (orderItemId: string, status: string) => {

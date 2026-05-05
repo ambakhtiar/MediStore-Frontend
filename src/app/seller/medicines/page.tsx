@@ -29,31 +29,88 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Medicine } from "@/types";
+import { useDataTable } from "@/hooks/use-data-table";
+import { DataTable } from "@/components/dashboard/DataTable";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 export const dynamic = "force-dynamic";
-// export const fetchCache = "force-no-store"; // optional
 
 export default function SellerMedicinesPage() {
+    const { params, onSearch, onPageChange, onLimitChange, onSort, onFilterChange } = useDataTable("createdAt");
     const [medicines, setMedicines] = useState<Medicine[]>([]);
+    const [pagination, setPagination] = useState({
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+    });
     const [loading, setLoading] = useState(true);
+    const [isFetching, setIsFetching] = useState(false);
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const router = useRouter();
 
-    // fetchMedicines declared before useEffect and memoized
     const fetchMedicines = useCallback(async () => {
-        setLoading(true);
+        setIsFetching(true);
         try {
-            const res = await getSellerMedicines();
+            const res = await getSellerMedicines({
+                search: params.search,
+                inStock: params.inStock === "true" ? true : params.inStock === "false" ? false : undefined,
+                isActive: params.status === "active" ? true : params.status === "inactive" ? false : undefined,
+                page: params.page,
+                limit: params.limit,
+                sortBy: params.sortBy,
+                sortOrder: params.sortOrder,
+            });
 
-            const data = res?.data?.data?.data ?? [];
-            setMedicines(data);
+            if (res?.ok && res?.data?.data) {
+                const bodyData = res.data.data;
+                
+                let items: Medicine[] = [];
+                let total = 0;
+                let totalPages = 1;
+
+                if (bodyData && typeof bodyData === "object" && bodyData !== null && "data" in bodyData) {
+                    items = (bodyData.data as Medicine[]) || [];
+                    const pag = (bodyData as any).pagination;
+                    total = pag?.total || items.length;
+                    totalPages = pag?.totalPages || 1;
+                } else if (bodyData && typeof bodyData === "object" && bodyData !== null && "items" in bodyData) {
+                    items = (bodyData.items as Medicine[]) || [];
+                    const pag = (bodyData as any).pagination;
+                    total = pag?.total || items.length;
+                    totalPages = pag?.totalPages || 1;
+                } else if (Array.isArray(bodyData)) {
+                    items = bodyData;
+                    total = bodyData.length;
+                }
+
+                setMedicines(items);
+                setPagination({
+                    total,
+                    page: params.page,
+                    limit: params.limit,
+                    totalPages,
+                });
+            } else {
+                setMedicines([]);
+                if (res?.error?.message) {
+                    toast.error(res.error.message);
+                }
+            }
         } catch (err) {
             console.error("Failed to fetch medicines:", err);
             setMedicines([]);
             toast.error("Failed to load medicines");
         } finally {
             setLoading(false);
+            setIsFetching(false);
         }
-    }, []);
+    }, [params]);
 
     useEffect(() => {
         fetchMedicines();
@@ -69,7 +126,6 @@ export default function SellerMedicinesPage() {
             if (result?.ok) {
                 toast.success("Medicine deleted successfully", { id: toastId });
                 setDeleteId(null);
-                // refresh list
                 await fetchMedicines();
             } else {
                 toast.error(result?.error?.message || "Failed to delete", { id: toastId });
@@ -80,7 +136,7 @@ export default function SellerMedicinesPage() {
         }
     };
 
-    if (loading) {
+    if (loading && medicines.length === 0) {
         return <div className="text-center py-12">Loading...</div>;
     }
 
@@ -106,29 +162,81 @@ export default function SellerMedicinesPage() {
                 </Link>
             </div>
 
-            {/* Medicines Table */}
-            {medicines.length === 0 ? (
-                <Card className="p-12 text-center">
-                    <p className="text-muted-foreground mb-4">
-                        No medicines yet. Add your first medicine to get started!
-                    </p>
-                    <Link href="/seller/medicines/add">
-                        <Button>
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add Medicine
-                        </Button>
-                    </Link>
-                </Card>
-            ) : (
-                <Card>
+            {/* Controls and Table Wrapper */}
+            <DataTable
+                searchValue={params.search || ""}
+                onSearch={onSearch}
+                limitValue={params.limit}
+                onLimitChange={onLimitChange}
+                pagination={pagination}
+                onPageChange={onPageChange}
+                isFetching={isFetching}
+                filters={
+                    <div className="flex gap-2">
+                        <Select
+                            value={params.status || "all"}
+                            onValueChange={(v) => onFilterChange("status", v === "all" ? "" : v)}
+                        >
+                            <SelectTrigger className="w-[130px]">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Status</SelectItem>
+                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="inactive">Inactive</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        <Select
+                            value={params.inStock || "all"}
+                            onValueChange={(v) => onFilterChange("inStock", v === "all" ? "" : v)}
+                        >
+                            <SelectTrigger className="w-[130px]">
+                                <SelectValue placeholder="Stock" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Stock</SelectItem>
+                                <SelectItem value="true">In Stock</SelectItem>
+                                <SelectItem value="false">Out of Stock</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                }
+            >
+                {/* Medicines Table */}
+                {medicines.length === 0 ? (
+                    <div className="p-12 text-center">
+                        <p className="text-muted-foreground mb-4">
+                            No medicines found.
+                        </p>
+                        {!params.search && !params.status && !params.inStock && (
+                            <Link href="/seller/medicines/add">
+                                <Button>
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Add Medicine
+                                </Button>
+                            </Link>
+                        )}
+                    </div>
+                ) : (
                     <Table>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Image</TableHead>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Category</TableHead>
-                                <TableHead>Price</TableHead>
-                                <TableHead>Stock</TableHead>
+                                <TableHead 
+                                    className="cursor-pointer hover:bg-muted/50"
+                                    onClick={() => onSort("price")}
+                                >
+                                    Price {params.sortBy === "price" && (params.sortOrder === "asc" ? "↑" : "↓")}
+                                </TableHead>
+                                <TableHead 
+                                    className="cursor-pointer hover:bg-muted/50"
+                                    onClick={() => onSort("stock")}
+                                >
+                                    Stock {params.sortBy === "stock" && (params.sortOrder === "asc" ? "↑" : "↓")}
+                                </TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
@@ -219,8 +327,8 @@ export default function SellerMedicinesPage() {
                             ))}
                         </TableBody>
                     </Table>
-                </Card>
-            )}
+                )}
+            </DataTable>
 
             {/* Delete Confirmation Dialog */}
             <AlertDialog open={!!deleteId} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>

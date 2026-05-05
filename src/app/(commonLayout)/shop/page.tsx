@@ -16,7 +16,12 @@ export default async function ShopPage(props: {
 
     // Fetch categories on server
     const categoriesRes = await getCategories();
-    const categories = categoriesRes?.data?.data || [];
+    const categoriesData = categoriesRes?.data?.data;
+    const categories = Array.isArray(categoriesData) 
+        ? categoriesData 
+        : categoriesData?.items 
+            ? categoriesData.items 
+            : [];
 
     return (
         <Suspense fallback={<div className="section-padding text-center">Loading shop...</div>}>
