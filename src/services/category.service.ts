@@ -30,6 +30,10 @@ const getAll = async (params: CategoryParams = {}): Promise<ApiResponse<any>> =>
         if (params.limit) url.searchParams.append("limit", params.limit.toString());
         if (params.sortBy) url.searchParams.append("sortBy", params.sortBy);
         if (params.sortOrder) url.searchParams.append("sortOrder", params.sortOrder);
+        // ✅ FIX: was missing — this is why the prescription filter never worked
+        if (params.isPrescriptionRequired !== undefined && params.isPrescriptionRequired !== "") {
+            url.searchParams.append("isPrescriptionRequired", String(params.isPrescriptionRequired));
+        }
 
         const res = await fetch(url.toString(), {
             method: "GET",

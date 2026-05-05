@@ -119,6 +119,7 @@ const Navbar = ({
     const router = useRouter();
     const pathname = usePathname();
     const [open, setOpen] = useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
     const cbUrlRef = useRef("/");
     const [cbUrl, setCbUrl] = useState("/");
@@ -273,16 +274,16 @@ const Navbar = ({
                             </Button>
                         )}
                         {mounted && (
-                            <Sheet>
+                            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                                 <SheetTrigger asChild>
                                     <Button variant="outline" size="icon">
                                         <Menu className="size-4" />
                                     </Button>
                                 </SheetTrigger>
-                                <SheetContent className="overflow-y-auto">
+                                <SheetContent className="overflow-y-auto w-full max-w-[300px] sm:max-w-sm">
                                     <SheetHeader>
                                         <SheetTitle>
-                                            <Link href={logo.url} className="flex items-center gap-2">
+                                            <Link href={logo.url} className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
                                                 <img src={logo.src} className="h-8 object-contain" alt={logo.alt} />
                                             </Link>
                                         </SheetTitle>
@@ -295,8 +296,9 @@ const Navbar = ({
                                                     <Link
                                                         key={item.title}
                                                         href={item.url}
+                                                        onClick={() => setMobileOpen(false)}
                                                         className={cn(
-                                                            "text-sm font-medium px-3 py-2 rounded-lg transition-colors",
+                                                            "text-sm font-medium px-3 py-2 rounded-lg transition-colors break-words",
                                                             isActive
                                                                 ? "bg-primary/10 text-primary font-bold border border-primary/20"
                                                                 : "text-foreground hover:bg-muted"
@@ -311,10 +313,10 @@ const Navbar = ({
                                             <ModeToggle />
                                             {!isLoggedIn ? (
                                                 <div className="flex gap-2">
-                                                    <Button asChild variant="outline" className="flex-1">
+                                                    <Button asChild variant="outline" className="flex-1" onClick={() => setMobileOpen(false)}>
                                                         <a href={loginHref}>{auth.login.title}</a>
                                                     </Button>
-                                                    <Button asChild className="flex-1">
+                                                    <Button asChild className="flex-1" onClick={() => setMobileOpen(false)}>
                                                         <a href={auth.signup.url}>{auth.signup.title}</a>
                                                     </Button>
                                                 </div>
@@ -322,18 +324,21 @@ const Navbar = ({
                                                 <div className="flex flex-col gap-2 border-t pt-4">
                                                     <div className="flex items-center gap-3 mb-2">
                                                         <UserAvatar image={user?.image} name={user?.name} />
-                                                        <div>
-                                                            <p className="text-sm font-medium">{user?.name}</p>
+                                                        <div className="overflow-hidden">
+                                                            <p className="text-sm font-medium truncate">{user?.name}</p>
                                                             <p className="text-xs text-muted-foreground capitalize">
                                                                 {user?.role?.toLowerCase()}
                                                             </p>
                                                         </div>
                                                     </div>
-                                                    <Link href="/profile" className="text-sm text-gray-700 dark:text-gray-200 hover:text-primary">
+                                                    <Link href="/profile" onClick={() => setMobileOpen(false)} className="text-sm text-gray-700 dark:text-gray-200 hover:text-primary">
                                                         Profile
                                                     </Link>
                                                     <button
-                                                        onClick={handleLogOut}
+                                                        onClick={() => {
+                                                            setMobileOpen(false);
+                                                            handleLogOut();
+                                                        }}
                                                         className="text-left text-sm text-red-600 dark:text-red-400 hover:text-red-700"
                                                     >
                                                         Sign out

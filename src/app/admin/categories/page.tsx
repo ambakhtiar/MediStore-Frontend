@@ -63,7 +63,8 @@ export default function AdminCategoriesPage() {
         limit: 10,
         totalPages: 1,
     });
-    const [loading, setLoading] = useState(true);
+    const [initialLoading, setInitialLoading] = useState(true);
+    const [isFetching, setIsFetching] = useState(false);
 
     // Dialog states
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -80,7 +81,7 @@ export default function AdminCategoriesPage() {
     });
 
     const fetchCategories = useCallback(async () => {
-        setLoading(true);
+        setIsFetching(true);
         try {
             const res = await getCategories({
                 search: params.search,
@@ -90,12 +91,10 @@ export default function AdminCategoriesPage() {
                 sortBy: params.sortBy,
                 sortOrder: params.sortOrder,
             });
-            
+
             if (res.ok && res.data) {
-                // The body contains { message, data: { items, pagination } }
                 const bodyData = res.data.data;
-                
-                // Flexible parsing: handle both {items, pagination} object and direct array
+
                 let items: Category[] = [];
                 let total = 0;
                 let totalPages = 1;
@@ -115,18 +114,17 @@ export default function AdminCategoriesPage() {
                     total,
                     page: params.page,
                     limit: params.limit,
-                    totalPages
+                    totalPages,
                 });
             } else {
-                setCategories([]);
                 toast.error(res.error?.message || "Failed to fetch categories");
             }
         } catch (err) {
             console.error("Failed to fetch categories:", err);
             toast.error("Failed to load categories");
-            setCategories([]);
         } finally {
-            setLoading(false);
+            setIsFetching(false);
+            setInitialLoading(false);
         }
     }, [params]);
 
@@ -215,9 +213,6 @@ export default function AdminCategoriesPage() {
         }
     };
 
-    if (loading) {
-        return <div className="text-center py-12">Loading...</div>;
-    }
 
     return (
         <div className="space-y-6">
@@ -243,6 +238,7 @@ export default function AdminCategoriesPage() {
                 onLimitChange={onLimitChange}
                 pagination={pagination}
                 onPageChange={onPageChange}
+                isFetching={isFetching}
                 filters={
                     <Select
                         value={params.isPrescriptionRequired || "all"}
@@ -275,9 +271,9 @@ export default function AdminCategoriesPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {loading ? (
+                        {initialLoading ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="text-center py-8">
+                                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                                     Loading...
                                 </TableCell>
                             </TableRow>

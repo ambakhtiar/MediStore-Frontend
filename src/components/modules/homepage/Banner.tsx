@@ -5,7 +5,7 @@ import { ShieldCheck } from "lucide-react";
 export default function HeroBanner() {
     return (
         /* Full-width section: background stretches edge-to-edge, content is constrained */
-        <section className="relative overflow-hidden border-b border-border h-[70vh] flex flex-col justify-center">
+        <section className="relative overflow-hidden border-b border-border min-h-[70vh] lg:h-[70vh] flex flex-col justify-center">
             {/* ── Full-width background ── */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-emerald/5 dark:from-primary/15 dark:via-background dark:to-emerald/10" />
             {/* Decorative blobs */}

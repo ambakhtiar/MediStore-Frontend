@@ -37,11 +37,12 @@ export default function AdminUsersPage() {
         limit: 10,
         totalPages: 1,
     });
-    const [loading, setLoading] = useState(true);
+    const [initialLoading, setInitialLoading] = useState(true);
+    const [isFetching, setIsFetching] = useState(false);
     const [updatingId, setUpdatingId] = useState<string | null>(null);
 
     const fetchUsers = useCallback(async () => {
-        setLoading(true);
+        setIsFetching(true);
         try {
             const res = await getAllUsers({
                 search: params.search,
@@ -55,7 +56,7 @@ export default function AdminUsersPage() {
 
             if (res.ok && res.data) {
                 const bodyData = res.data.data;
-                
+
                 let items: User[] = [];
                 let total = 0;
                 let totalPages = 1;
@@ -75,18 +76,17 @@ export default function AdminUsersPage() {
                     total,
                     page: params.page,
                     limit: params.limit,
-                    totalPages
+                    totalPages,
                 });
             } else {
-                setUsers([]);
                 toast.error(res.error?.message || "Failed to fetch users");
             }
         } catch (err) {
             console.error("Failed to fetch users:", err);
             toast.error("Failed to load users");
-            setUsers([]);
         } finally {
-            setLoading(false);
+            setIsFetching(false);
+            setInitialLoading(false);
         }
     }, [params]);
 
@@ -130,6 +130,7 @@ export default function AdminUsersPage() {
                 onLimitChange={onLimitChange}
                 pagination={pagination}
                 onPageChange={onPageChange}
+                isFetching={isFetching}
                 filters={
                     <div className="flex gap-2">
                         <Select
@@ -181,9 +182,9 @@ export default function AdminUsersPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {loading ? (
+                        {initialLoading ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="text-center py-8">
+                                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                                     Loading...
                                 </TableCell>
                             </TableRow>
