@@ -9,7 +9,8 @@ import {
     Users,
     FolderTree,
     LogOut,
-    Home
+    Home,
+    BarChart3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -23,6 +24,7 @@ const sellerLinks = [
 
 const adminLinks = [
     { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
     { href: "/admin/users", label: "Users", icon: Users },
     { href: "/admin/categories", label: "Categories", icon: FolderTree },
     { href: "/admin/orders", label: "All Orders", icon: ShoppingCart },

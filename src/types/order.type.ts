@@ -96,7 +96,15 @@ export interface OrdersListApiResponse {
     status: number;
     data?: {
         message?: string;
-        data?: Order[];
+        data?: {
+            items: Order[];
+            pagination: {
+                total: number;
+                page: number;
+                limit: number;
+                totalPages: number;
+            };
+        };
     } | null;
     error?: {
         message: string;

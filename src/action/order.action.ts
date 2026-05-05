@@ -1,8 +1,25 @@
 "use server";
 
-import { orderService } from "@/services/order.service";
+import { OrderParams, orderService } from "@/services/order.service";
 import { CreateOrderPayload } from "@/types/order.type";
 import { revalidatePath, revalidateTag } from "next/cache";
+
+/**
+ * Fetch all orders (Admin/Seller/Customer)
+ */
+export const getAllOrders = async (params: OrderParams = {}) => {
+    return await orderService.getOrders(params);
+};
+
+export const getOrders = getAllOrders;
+
+export const updateOrderStatusByAdmin = async (id: string, status: string) => {
+    const res = await orderService.updateOrderStatusByAdmin(id, status);
+    if (res.ok) {
+        revalidatePath("/admin/orders");
+    }
+    return res;
+};
 
 /**
  * Create Order Action
@@ -25,14 +42,6 @@ export const createOrder = async (payload: CreateOrderPayload) => {
 };
 
 /**
- * Get Orders Action
- * Fetches all orders for current user
- */
-export const getOrders = async () => {
-    return await orderService.getOrders();
-};
-
-/**
  * Get Single Order Action
  * Fetches a single order by ID
  */
@@ -40,11 +49,6 @@ export const getOrder = async (orderId: string) => {
     return await orderService.getOrder(orderId);
 };
 
-/**
- * Cancel Order Action
- * - Cancels the order
- * - Revalidates orders list
- */
 export const cancelOrder = async (orderId: string) => {
     const result = await orderService.cancelOrder(orderId);
 

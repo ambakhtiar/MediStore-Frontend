@@ -1,10 +1,10 @@
 "use server";
 
-import { medicineService } from "@/services/medicine.service";
+import { medicineService, getMEdicineParams } from "@/services/medicine.service";
 import { ServiceOption } from "@/types";
 
-export const getAllMedicine = async () => {
-    const res = await medicineService.getAllMedicine();
+export const getAllMedicine = async (params?: getMEdicineParams) => {
+    const res = await medicineService.getAllMedicine(params);
     return res;
 }
 

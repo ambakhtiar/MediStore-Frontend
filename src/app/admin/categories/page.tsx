@@ -13,6 +13,7 @@ import {
     deleteCategory
 } from "@/action/category.action";
 import { Card } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
     Table,
     TableBody,
@@ -48,11 +49,20 @@ import {
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Category } from "@/types";
+import { useDataTable } from "@/hooks/use-data-table";
+import { DataTable } from "@/components/dashboard/DataTable";
 export const dynamic = "force-dynamic";
 // export const fetchCache = "force-no-store"; // optional
 
 export default function AdminCategoriesPage() {
+    const { params, onSearch, onPageChange, onLimitChange, onSort, onFilterChange } = useDataTable("name");
     const [categories, setCategories] = useState<Category[]>([]);
+    const [pagination, setPagination] = useState({
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+    });
     const [loading, setLoading] = useState(true);
 
     // Dialog states
@@ -72,12 +82,44 @@ export default function AdminCategoriesPage() {
     const fetchCategories = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await getCategories();
-            const list = res?.data?.data ?? res?.data ?? [];
-            if (Array.isArray(list)) {
-                setCategories(list);
+            const res = await getCategories({
+                search: params.search,
+                isPrescriptionRequired: params.isPrescriptionRequired,
+                page: params.page,
+                limit: params.limit,
+                sortBy: params.sortBy,
+                sortOrder: params.sortOrder,
+            });
+            
+            if (res.ok && res.data) {
+                // The body contains { message, data: { items, pagination } }
+                const bodyData = res.data.data;
+                
+                // Flexible parsing: handle both {items, pagination} object and direct array
+                let items: Category[] = [];
+                let total = 0;
+                let totalPages = 1;
+
+                if (bodyData && typeof bodyData === "object" && bodyData !== null && "items" in bodyData) {
+                    items = (bodyData.items as Category[]) || [];
+                    const pag = (bodyData as any).pagination;
+                    total = pag?.total || items.length;
+                    totalPages = pag?.totalPages || 1;
+                } else if (Array.isArray(bodyData)) {
+                    items = bodyData;
+                    total = bodyData.length;
+                }
+
+                setCategories(items);
+                setPagination({
+                    total,
+                    page: params.page,
+                    limit: params.limit,
+                    totalPages
+                });
             } else {
                 setCategories([]);
+                toast.error(res.error?.message || "Failed to fetch categories");
             }
         } catch (err) {
             console.error("Failed to fetch categories:", err);
@@ -86,17 +128,10 @@ export default function AdminCategoriesPage() {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [params]);
 
     useEffect(() => {
-        let mounted = true;
-        (async () => {
-            if (!mounted) return;
-            await fetchCategories();
-        })();
-        return () => {
-            mounted = false;
-        };
+        fetchCategories();
     }, [fetchCategories]);
 
 
@@ -201,31 +236,59 @@ export default function AdminCategoriesPage() {
             </div>
 
             {/* Categories Table */}
-            {categories.length === 0 ? (
-                <Card className="p-12 text-center">
-                    <p className="text-muted-foreground mb-4">
-                        No categories yet. Create your first category!
-                    </p>
-                    <Button onClick={() => handleOpenDialog()}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Category
-                    </Button>
-                </Card>
-            ) : (
-                <Card>
-                    <Table>
-                        <TableHeader>
+            <DataTable
+                searchValue={params.search || ""}
+                onSearch={onSearch}
+                limitValue={params.limit}
+                onLimitChange={onLimitChange}
+                pagination={pagination}
+                onPageChange={onPageChange}
+                filters={
+                    <Select
+                        value={params.isPrescriptionRequired || "all"}
+                        onValueChange={(v) => onFilterChange("isPrescriptionRequired", v === "all" ? "" : v)}
+                    >
+                        <SelectTrigger className="w-[200px]">
+                            <SelectValue placeholder="Prescription Filter" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Categories</SelectItem>
+                            <SelectItem value="true">Prescription Required</SelectItem>
+                            <SelectItem value="false">No Prescription</SelectItem>
+                        </SelectContent>
+                    </Select>
+                }
+            >
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => onSort("name")}>
+                                Name {params.sortBy === "name" && (params.sortOrder === "asc" ? "↑" : "↓")}
+                            </TableHead>
+                            <TableHead>Slug</TableHead>
+                            <TableHead>Description</TableHead>
+                            <TableHead>Prescription Required</TableHead>
+                            <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => onSort("createdAt")}>
+                                Created {params.sortBy === "createdAt" && (params.sortOrder === "asc" ? "↑" : "↓")}
+                            </TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {loading ? (
                             <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Slug</TableHead>
-                                <TableHead>Description</TableHead>
-                                <TableHead>Prescription Required</TableHead>
-                                <TableHead>Created</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+                                <TableCell colSpan={6} className="text-center py-8">
+                                    Loading...
+                                </TableCell>
                             </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {categories.map((category) => (
+                        ) : categories.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                                    No categories found.
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            categories.map((category) => (
                                 <TableRow key={category.id}>
                                     <TableCell className="font-medium">
                                         {category.name}
@@ -268,11 +331,11 @@ export default function AdminCategoriesPage() {
                                         </div>
                                     </TableCell>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </Card>
-            )}
+                            ))
+                        )}
+                    </TableBody>
+                </Table>
+            </DataTable>
 
             {/* Create/Edit Dialog */}
             <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>

@@ -182,7 +182,7 @@ const Navbar = ({
 
     return (
         <header className={cn("sticky top-0 z-50 w-full border-b border-border/40 bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/60", className)}>
-            <div className="container-app py-1">
+            <div className="container-app py-2">
 
                 {/* ── Desktop ── */}
                 <nav className="hidden items-center justify-between lg:flex">

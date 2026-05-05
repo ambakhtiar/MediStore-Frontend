@@ -161,7 +161,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
                         className="flex-1 text-xs"
                         onClick={() => {
                             form.setFieldValue("email", "admin@medistore.com");
-                            form.setFieldValue("password", "admin123");
+                            form.setFieldValue("password", "11223344");
                             // Optional: auto-submit
                             // setTimeout(() => form.handleSubmit(), 100);
                         }}

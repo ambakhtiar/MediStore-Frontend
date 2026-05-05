@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { getOrders } from "@/action/order.action";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -12,10 +11,11 @@ import { Order, OrderItem, OrderStatus } from "@/types";
 import { format } from "date-fns";
 import Link from "next/link";
 import { toast } from "sonner";
-import { updateOrderStatus } from "@/action/dashboard.action";
-export const dynamic = "force-dynamic";
-// export const fetchCache = "force-no-store"; // optional
+import { getAllOrders, updateOrderStatusByAdmin, getOrders } from "@/action/order.action";
+import { useDataTable } from "@/hooks/use-data-table";
+import { DataTable } from "@/components/dashboard/DataTable";
 
+export const dynamic = "force-dynamic";
 
 type StatusVariant = "secondary" | "default" | "outline" | "destructive";
 const ORDER_STATUSES: OrderStatus[] = ["PLACED", "CONFIRMS", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"];
@@ -36,46 +36,74 @@ export function getStatusVariant(status: string): StatusVariant {
     return "secondary";
 }
 
-export default function AdminOrdersPageComplete() {
+export default function AdminOrdersPage() {
+    const { params, onSearch, onPageChange, onLimitChange, onSort, onFilterChange } = useDataTable("createdAt");
     const [orders, setOrders] = useState<Order[]>([]);
+    const [pagination, setPagination] = useState({
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+    });
     const [loading, setLoading] = useState(true);
-    const [currentPage, setCurrentPage] = useState(1);
     const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
-    const itemsPerPage = 10;
 
-    // Declare and memoize before useEffect
     const fetchOrders = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await getOrders();
-            const list = res?.data?.data ?? [];
-            setOrders(list);
+            const res = await getAllOrders({
+                search: params.search,
+                status: params.status,
+                page: params.page,
+                limit: params.limit,
+                sortBy: params.sortBy,
+                sortOrder: params.sortOrder,
+            });
 
-            // console.log(list);
+            if (res.ok && res.data) {
+                const bodyData = res.data.data;
+                
+                let items: Order[] = [];
+                let total = 0;
+                let totalPages = 1;
+
+                if (bodyData && typeof bodyData === "object" && bodyData !== null && "items" in bodyData) {
+                    items = (bodyData.items as Order[]) || [];
+                    const pag = (bodyData as any).pagination;
+                    total = pag?.total || items.length;
+                    totalPages = pag?.totalPages || 1;
+                } else if (Array.isArray(bodyData)) {
+                    items = bodyData as Order[];
+                    total = (bodyData as any[]).length;
+                }
+
+                setOrders(items);
+                setPagination({
+                    total,
+                    page: params.page,
+                    limit: params.limit,
+                    totalPages
+                });
+            } else {
+                setOrders([]);
+                toast.error(res.error?.message || "Failed to fetch orders");
+            }
         } catch (err) {
             console.error("Failed to fetch orders:", err);
+            toast.error("Failed to load orders");
             setOrders([]);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [params]);
 
-    // Call the memoized function inside useEffect
     useEffect(() => {
-        let mounted = true;
-        (async () => {
-            if (!mounted) return;
-            await fetchOrders();
-        })();
-        return () => {
-            mounted = false;
-        };
+        fetchOrders();
     }, [fetchOrders]);
-
 
     const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
         const toastId = toast.loading("Updating order status...");
-        const result = await updateOrderStatus(orderId, newStatus);
+        const result = await updateOrderStatusByAdmin(orderId, newStatus);
         if (result.ok) {
             toast.success("Order status updated successfully", { id: toastId });
             fetchOrders();
@@ -84,138 +112,149 @@ export default function AdminOrdersPageComplete() {
         }
     };
 
-    // Pagination
-    const totalPages = Math.ceil(orders.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedOrders = orders.slice(startIndex, startIndex + itemsPerPage);
-
-    if (loading) return <div className="text-center py-12">Loading...</div>;
-
     return (
         <div className="space-y-6">
             <div>
                 <h1 className="text-3xl font-bold">All Orders</h1>
-                <p className="text-muted-foreground">View and manage all orders ({orders.length} total)</p>
+                <p className="text-muted-foreground">View and manage all orders</p>
             </div>
 
-            {orders.length === 0 ? (
-                <Card className="p-12 text-center">
-                    <p className="text-muted-foreground">No orders yet</p>
-                </Card>
-            ) : (
-                <>
-                    <Card>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Order ID</TableHead>
-                                    <TableHead>Customer</TableHead>
-                                    <TableHead>Items</TableHead>
-                                    <TableHead>Total</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Update Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {paginatedOrders.map((order: Order) => (
-                                    <React.Fragment key={order.id}>
-                                        <TableRow key={order.id}>
-                                            <TableCell className="font-medium">
-                                                #{order.id.slice(0, 8).toUpperCase()}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div>
-                                                    <p className="font-medium">{order.user?.name || order.shippingName || "—"}</p>
-                                                    <p className="font-medium">{order.shippingPhone || "—"}</p>v
-                                                    {/* <p className="font-medium">{order.shippingAddress || "—"}</p> */}
-                                                    {/* <p className="text-sm text-muted-foreground">{order.user?.email}</p> */}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>{order.items?.length || 0} items</TableCell>
-                                            <TableCell className="font-semibold">৳{order.total.toFixed(2)}</TableCell>
-                                            <TableCell>
-                                                <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
-                                            </TableCell>
-                                            <TableCell>{format(new Date(order.createdAt), "PP")}</TableCell>
-                                            <TableCell>
-                                                {order.status !== "DELIVERED" && order.status !== "CANCELLED" ? (
-                                                    <Select value={order.status} onValueChange={(value) => handleStatusChange(order.id, value as OrderStatus)}>
-                                                        <SelectTrigger className="w-36">
-                                                            <SelectValue />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {ORDER_STATUSES.map((status) => (
-                                                                <SelectItem key={status} value={status}>{status}</SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                ) : (
-                                                    <span className="text-sm text-muted-foreground">{order.status === "DELIVERED" ? "Completed" : "Cancelled"}</span>
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <Button size="sm" variant="outline" onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}>
-                                                        {expandedOrder === order.id ? "Hide" : "Items"}
+            <DataTable
+                searchValue={params.search || ""}
+                onSearch={onSearch}
+                limitValue={params.limit}
+                onLimitChange={onLimitChange}
+                pagination={pagination}
+                onPageChange={onPageChange}
+                filters={
+                    <Select
+                        value={params.status || "all"}
+                        onValueChange={(v) => onFilterChange("status", v === "all" ? "" : v)}
+                    >
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="All Statuses" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Statuses</SelectItem>
+                            {ORDER_STATUSES.map((status) => (
+                                <SelectItem key={status} value={status}>{status}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                }
+            >
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Order ID</TableHead>
+                            <TableHead>Customer</TableHead>
+                            <TableHead>Items</TableHead>
+                            <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => onSort("total")}>
+                                Total {params.sortBy === "total" && (params.sortOrder === "asc" ? "↑" : "↓")}
+                            </TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => onSort("createdAt")}>
+                                Date {params.sortBy === "createdAt" && (params.sortOrder === "asc" ? "↑" : "↓")}
+                            </TableHead>
+                            <TableHead>Update Status</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {loading ? (
+                            <TableRow>
+                                <TableCell colSpan={8} className="text-center py-8">
+                                    Loading...
+                                </TableCell>
+                            </TableRow>
+                        ) : orders.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                                    No orders found.
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            orders.map((order: Order) => (
+                                <React.Fragment key={order.id}>
+                                    <TableRow>
+                                        <TableCell className="font-medium">
+                                            #{order.id.slice(0, 8).toUpperCase()}
+                                        </TableCell>
+                                        <TableCell>
+                                            <div>
+                                                <p className="font-medium">{order.user?.name || order.shippingName || "—"}</p>
+                                                <p className="text-xs text-muted-foreground">{order.shippingPhone || "—"}</p>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>{order.items?.length || 0} items</TableCell>
+                                        <TableCell className="font-semibold">৳{order.total.toFixed(2)}</TableCell>
+                                        <TableCell>
+                                            <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
+                                        </TableCell>
+                                        <TableCell>{format(new Date(order.createdAt), "PP")}</TableCell>
+                                        <TableCell>
+                                            {order.status !== "DELIVERED" && order.status !== "CANCELLED" ? (
+                                                <Select value={order.status} onValueChange={(value) => handleStatusChange(order.id, value as OrderStatus)}>
+                                                    <SelectTrigger className="w-32">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {ORDER_STATUSES.map((status) => (
+                                                            <SelectItem key={status} value={status}>{status}</SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            ) : (
+                                                <span className="text-xs text-muted-foreground">{order.status === "DELIVERED" ? "Completed" : "Cancelled"}</span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex justify-end gap-2">
+                                                <Button size="sm" variant="outline" onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}>
+                                                    {expandedOrder === order.id ? "Hide" : "Items"}
+                                                </Button>
+                                                <Link href={`/orders/${order.id}`}>
+                                                    <Button size="sm" variant="ghost">
+                                                        <Eye className="h-4 w-4" />
                                                     </Button>
-                                                    <Link href={`/orders/${order.id}`}>
-                                                        <Button size="sm" variant="outline">
-                                                            <Eye className="h-4 w-4 mr-2" />View
-                                                        </Button>
-                                                    </Link>
+                                                </Link>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                    {expandedOrder === order.id && (
+                                        <TableRow>
+                                            <TableCell colSpan={8} className="bg-muted/30 p-0">
+                                                <div className="p-4 space-y-2">
+                                                    <h4 className="text-sm font-semibold mb-2 px-2">Order Items Details</h4>
+                                                    {order.items.map((item: OrderItem) => (
+                                                        <div key={item.id} className="flex items-center justify-between p-3 bg-background rounded-lg border shadow-sm">
+                                                            <div className="flex flex-col">
+                                                                <Link href={`/shop/${item.medicine.id}`} className="font-medium text-primary hover:underline">
+                                                                    {item.medicine.name}
+                                                                </Link>
+                                                                <p className="text-xs text-muted-foreground mt-1">
+                                                                    Seller: <span className="font-medium text-foreground">{item.medicine?.seller?.name || "System"}</span>
+                                                                </p>
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    Qty: {item.quantity} × ৳{item.unitPrice.toFixed(2)}
+                                                                </p>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <p className="font-semibold text-sm">৳{(item.quantity * item.unitPrice).toFixed(2)}</p>
+                                                                <Badge variant="outline" className="mt-1 text-[10px] h-5">{item.orderItemStatus}</Badge>
+                                                            </div>
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             </TableCell>
                                         </TableRow>
-                                        {/* Expanded Items */}
-                                        {expandedOrder === order.id && (
-                                            <TableRow>
-                                                <TableCell colSpan={8} className="bg-muted/50">
-                                                    <CardContent className="pt-4">
-                                                        <h4 className="font-semibold mb-3">Order Items:</h4>
-                                                        <div className="space-y-2">
-                                                            {order.items.map((item: OrderItem) => (
-                                                                <div key={item.id} className="flex items-center justify-between p-3 bg-background rounded border">
-                                                                    <div>
-                                                                        <Link href={`/shop/${item.medicine.id}`}><p className="font-medium text-blue-500">{item.medicine.name}</p></Link>
-                                                                        <p className="font-medium"><span className="font-semibold">Seller Name: </span>{item.medicine?.seller?.name || " "}</p>
-                                                                        <p className="font-medium"><span className="font-semibold">Seller Number: </span>{item.medicine?.seller?.phone || " "}</p>
-                                                                        <p className="text-sm text-muted-foreground">Qty: {item.quantity} × ৳{item.unitPrice.toFixed(2)}</p>
-                                                                    </div>
-                                                                    <div className="text-right">
-                                                                        <p className="font-semibold">৳{(item.quantity * item.unitPrice).toFixed(2)}</p>
-                                                                        <Badge variant={getStatusVariant(item.orderItemStatus)} className="mt-1">{item.orderItemStatus}</Badge>
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </CardContent>
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
-                                    </React.Fragment>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </Card>
-
-                    {/* Pagination */}
-                    {totalPages > 1 && (
-                        <div className="flex items-center justify-between">
-                            <p className="text-sm text-muted-foreground">Page {currentPage} of {totalPages}</p>
-                            <div className="flex gap-2">
-                                <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>
-                                    <ChevronLeft className="h-4 w-4" />Previous
-                                </Button>
-                                <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
-                                    Next<ChevronRight className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-                </>
-            )}
+                                    )}
+                                </React.Fragment>
+                            ))
+                        )}
+                    </TableBody>
+                </Table>
+            </DataTable>
         </div>
     );
 }

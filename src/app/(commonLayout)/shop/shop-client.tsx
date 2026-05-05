@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import MedicineCard, { MedicineCardSkeleton } from "@/components/modules/homepage/MedicineCard";
 import { Button } from "@/components/ui/button";
@@ -53,6 +53,7 @@ export default function ShopPageClient({ categories, searchParams }: ShopPageCli
     const [manufacturer, setManufacturer] = useState(getParam("manufacturer"));
     const [sortBy, setSortBy] = useState(getParam("sortBy") || "createdAt");
     const [sortOrder, setSortOrder] = useState(getParam("sortOrder") || "desc");
+    const [limit, setLimit] = useState(getParam("limit") || "12");
     const [inStock, setInStock] = useState<boolean | undefined>(() => {
         const val = getParam("inStock");
         return val === "true" ? true : val === "false" ? false : undefined;
@@ -62,33 +63,29 @@ export default function ShopPageClient({ categories, searchParams }: ShopPageCli
         const loadMedicines = async () => {
             setLoading(true);
 
-            const page = parseInt(getParam("page") || "1");
-            setCurrentPage(page);
+            const page = getParam("page") || "1";
+            const currentLimit = getParam("limit") || "12";
+            
+            setCurrentPage(parseInt(page));
+            setLimit(currentLimit);
 
-            const params = new URLSearchParams();
-            params.set("page", page.toString());
-            params.set("limit", "12");
-
-            const mappings: [string, string][] = [
-                ["search", getParam("search")],
-                ["category", getParam("category")],
-                ["minPrice", getParam("minPrice")],
-                ["maxPrice", getParam("maxPrice")],
-                ["manufacturer", getParam("manufacturer")],
-                ["inStock", getParam("inStock")],
-                ["sortBy", getParam("sortBy")],
-                ["sortOrder", getParam("sortOrder")],
-            ];
-
-            mappings.forEach(([key, val]) => {
-                if (val) params.set(key, val);
-            });
+            const params = {
+                page,
+                limit: currentLimit,
+                search: getParam("search"),
+                category: getParam("category"),
+                minPrice: getParam("minPrice"),
+                maxPrice: getParam("maxPrice"),
+                manufacturer: getParam("manufacturer"),
+                inStock: getParam("inStock"),
+                sortBy: getParam("sortBy"),
+                sortOrder: getParam("sortOrder"),
+            };
 
             try {
-                const data = await getAllMedicine();
+                const data = await getAllMedicine(params);
 
                 const items = data?.data?.data?.data ?? [];
-                // console.log(items);
                 const pagination = data?.data?.data?.pagination;
 
                 setMedicines(items);
@@ -109,7 +106,9 @@ export default function ShopPageClient({ categories, searchParams }: ShopPageCli
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams]);
 
-    const applyFilters = (page = 1) => {
+    const [isPending, startTransition] = useTransition();
+
+    const applyFilters = (page = 1, currentLimit = limit) => {
         const params = new URLSearchParams();
         if (search) params.set("search", search);
         if (selectedCategory) params.set("category", selectedCategory);
@@ -119,8 +118,12 @@ export default function ShopPageClient({ categories, searchParams }: ShopPageCli
         if (inStock !== undefined) params.set("inStock", String(inStock));
         params.set("sortBy", sortBy);
         params.set("sortOrder", sortOrder);
+        params.set("limit", currentLimit);
         if (page > 1) params.set("page", page.toString());
-        router.push(`/shop?${params.toString()}`);
+        
+        startTransition(() => {
+            router.push(`/shop?${params.toString()}`, { scroll: false });
+        });
     };
 
     const resetFilters = () => {
@@ -132,13 +135,28 @@ export default function ShopPageClient({ categories, searchParams }: ShopPageCli
         setInStock(undefined);
         setSortBy("createdAt");
         setSortOrder("desc");
-        router.push("/shop");
+        
+        startTransition(() => {
+            router.push("/shop", { scroll: false });
+        });
     };
+
+    // Debounce the search term to apply filters automatically
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            const currentSearchParam = getParam("search");
+            if (search !== currentSearchParam) {
+                applyFilters(1);
+            }
+        }, 600); // 600ms delay for smoother shop experience
+
+        return () => clearTimeout(timer);
+    }, [search]);
 
     const hasActiveFilters = !!(search || selectedCategory || minPrice || maxPrice || manufacturer || inStock !== undefined);
 
     return (
-        <section className="py-8">
+        <section className="container-app py-8">
             {/* Header */}
             <div className="mb-6">
                 <h1 className="text-3xl font-bold mb-1">Shop</h1>
@@ -289,35 +307,52 @@ export default function ShopPageClient({ categories, searchParams }: ShopPageCli
                 </Sheet>
             </div>
 
-            {/* Active Filters */}
-            {hasActiveFilters && (
-                <div className="mb-4 flex flex-wrap gap-2 items-center">
-                    <span className="text-sm text-muted-foreground">Active:</span>
-                    {search && (
-                        <Button variant="secondary" size="sm" onClick={() => { setSearch(""); applyFilters(1); }}>
-                            `{search}` <X className="h-3 w-3 ml-1" />
+            {/* Active Filters & Controls */}
+            <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                {hasActiveFilters ? (
+                    <div className="flex flex-wrap gap-2 items-center">
+                        <span className="text-sm text-muted-foreground">Active:</span>
+                        {search && (
+                            <Button variant="secondary" size="sm" onClick={() => { setSearch(""); applyFilters(1); }}>
+                                `{search}` <X className="h-3 w-3 ml-1" />
+                            </Button>
+                        )}
+                        {selectedCategory && (
+                            <Button variant="secondary" size="sm" onClick={() => { setSelectedCategory(""); applyFilters(1); }}>
+                                {categories.find(c => c.id === selectedCategory)?.name ?? "Category"} <X className="h-3 w-3 ml-1" />
+                            </Button>
+                        )}
+                        {manufacturer && (
+                            <Button variant="secondary" size="sm" onClick={() => { setManufacturer(""); applyFilters(1); }}>
+                                {manufacturer} <X className="h-3 w-3 ml-1" />
+                            </Button>
+                        )}
+                        {(minPrice || maxPrice) && (
+                            <Button variant="secondary" size="sm" onClick={() => { setMinPrice(""); setMaxPrice(""); applyFilters(1); }}>
+                                ৳{minPrice || "0"} – {maxPrice || "∞"} <X className="h-3 w-3 ml-1" />
+                            </Button>
+                        )}
+                        <Button variant="ghost" size="sm" onClick={resetFilters} className="text-muted-foreground">
+                            Clear all
                         </Button>
-                    )}
-                    {selectedCategory && (
-                        <Button variant="secondary" size="sm" onClick={() => { setSelectedCategory(""); applyFilters(1); }}>
-                            {categories.find(c => c.id === selectedCategory)?.name ?? "Category"} <X className="h-3 w-3 ml-1" />
-                        </Button>
-                    )}
-                    {manufacturer && (
-                        <Button variant="secondary" size="sm" onClick={() => { setManufacturer(""); applyFilters(1); }}>
-                            {manufacturer} <X className="h-3 w-3 ml-1" />
-                        </Button>
-                    )}
-                    {(minPrice || maxPrice) && (
-                        <Button variant="secondary" size="sm" onClick={() => { setMinPrice(""); setMaxPrice(""); applyFilters(1); }}>
-                            ৳{minPrice || "0"} – {maxPrice || "∞"} <X className="h-3 w-3 ml-1" />
-                        </Button>
-                    )}
-                    <Button variant="ghost" size="sm" onClick={resetFilters} className="text-muted-foreground">
-                        Clear all
-                    </Button>
+                    </div>
+                ) : <div />}
+
+                <div className="flex items-center gap-2">
+                    <Label className="text-xs text-muted-foreground shrink-0">Show:</Label>
+                    <Select value={limit} onValueChange={(val) => { setLimit(val); applyFilters(1, val); }}>
+                        <SelectTrigger className="h-8 w-[70px] text-xs">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="8">8</SelectItem>
+                            <SelectItem value="12">12</SelectItem>
+                            <SelectItem value="24">24</SelectItem>
+                            <SelectItem value="48">48</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
-            )}
+            </div>
 
             {/* Results Count */}
             {!loading && (

@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AdminStats } from "@/types";
-import AdminCharts from "@/components/dashboard/AdminCharts";
 export const dynamic = "force-dynamic";
 // export const fetchCache = "force-no-store"; // optional
 
@@ -165,13 +164,6 @@ export default async function AdminDashboardPage() {
                 </CardContent>
             </Card>
 
-            {/* Recharts Dashboards */}
-            {stats.charts && (
-                <AdminCharts
-                    revenueByMonth={stats.charts.revenueByMonth}
-                    ordersByStatus={stats.charts.ordersByStatus}
-                />
-            )}
         </div>
     );
 }

@@ -4,15 +4,17 @@
  * Category Actions - Complete CRUD
  */
 
-import { categoryService } from "@/services/category.service";
+import { CategoryParams, categoryService } from "@/services/category.service";
 import { revalidatePath } from "next/cache";
 
 /**
- * Get all categories
+ * Fetch all categories
  */
-export const getCategories = async () => {
-    return await categoryService.getAll();
+export const getAllCategories = async (params: CategoryParams = {}) => {
+    return await categoryService.getAll(params);
 };
+
+export const getCategories = getAllCategories;
 
 /**
  * Get category by ID
