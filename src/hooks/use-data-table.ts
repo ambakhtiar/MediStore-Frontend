@@ -80,6 +80,10 @@ export function useDataTable(defaultSortBy = "createdAt", defaultLimit = 10) {
         updateUrl({ [name]: value, page: 1 });
     }, [updateUrl]);
 
+    const onFiltersChange = useCallback((filters: Record<string, string>) => {
+        updateUrl({ ...filters, page: 1 });
+    }, [updateUrl]);
+
     return {
         params,
         onSearch,
@@ -87,5 +91,6 @@ export function useDataTable(defaultSortBy = "createdAt", defaultLimit = 10) {
         onLimitChange,
         onSort,
         onFilterChange,
+        onFiltersChange,
     };
 }

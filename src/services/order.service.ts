@@ -64,6 +64,8 @@ export type OrderParams = {
     limit?: number;
     sortBy?: string;
     sortOrder?: string;
+    minTotal?: number;
+    maxTotal?: number;
 };
 
 /**
@@ -83,6 +85,8 @@ const getOrders = async (params: OrderParams = {}): Promise<OrdersListApiRespons
         if (params.limit) url.searchParams.append("limit", params.limit.toString());
         if (params.sortBy) url.searchParams.append("sortBy", params.sortBy);
         if (params.sortOrder) url.searchParams.append("sortOrder", params.sortOrder);
+        if (params.minTotal !== undefined) url.searchParams.append("minTotal", params.minTotal.toString());
+        if (params.maxTotal !== undefined) url.searchParams.append("maxTotal", params.maxTotal.toString());
 
         const res = await fetch(url.toString(), {
             method: "GET",

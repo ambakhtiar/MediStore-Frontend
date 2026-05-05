@@ -34,7 +34,7 @@ export function getStatusVariant(status: string): StatusVariant {
 }
 
 export function AdminOrdersClient() {
-    const { params, onSearch, onPageChange, onLimitChange, onSort, onFilterChange } = useDataTable("createdAt");
+    const { params, onSearch, onPageChange, onLimitChange, onSort, onFilterChange, onFiltersChange } = useDataTable("createdAt");
     const [orders, setOrders] = useState<Order[]>([]);
     const [pagination, setPagination] = useState({
         total: 0,
@@ -56,6 +56,8 @@ export function AdminOrdersClient() {
                 limit: params.limit,
                 sortBy: params.sortBy,
                 sortOrder: params.sortOrder,
+                minTotal: params.minTotal ? Number(params.minTotal) : undefined,
+                maxTotal: params.maxTotal ? Number(params.maxTotal) : undefined,
             });
 
             if (res.ok && res.data) {
@@ -120,20 +122,47 @@ export function AdminOrdersClient() {
             onPageChange={onPageChange}
             isFetching={isFetching}
             filters={
-                <Select
-                    value={params.status || "all"}
-                    onValueChange={(v) => onFilterChange("status", v === "all" ? "" : v)}
-                >
-                    <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="All Statuses" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Statuses</SelectItem>
-                        {ORDER_STATUSES.map((status) => (
-                            <SelectItem key={status} value={status}>{status}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                <div className="flex flex-wrap gap-2">
+                    <Select
+                        value={params.status || "all"}
+                        onValueChange={(v) => onFilterChange("status", v === "all" ? "" : v)}
+                    >
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="All Statuses" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Statuses</SelectItem>
+                            {ORDER_STATUSES.map((status) => (
+                                <SelectItem key={status} value={status}>{status}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
+                    <Select
+                        value={params.amountRange || "all"}
+                        onValueChange={(v) => {
+                            if (v === "all") {
+                                onFiltersChange({ amountRange: "", minTotal: "", maxTotal: "" });
+                            } else if (v === "under500") {
+                                onFiltersChange({ amountRange: v, minTotal: "", maxTotal: "500" });
+                            } else if (v === "500-1000") {
+                                onFiltersChange({ amountRange: v, minTotal: "500", maxTotal: "1000" });
+                            } else if (v === "over1000") {
+                                onFiltersChange({ amountRange: v, minTotal: "1000", maxTotal: "" });
+                            }
+                        }}
+                    >
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Amount Range" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Amounts</SelectItem>
+                            <SelectItem value="under500">Under ৳500</SelectItem>
+                            <SelectItem value="500-1000">৳500 - ৳1000</SelectItem>
+                            <SelectItem value="over1000">Above ৳1000</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
             }
         >
             <Table>
