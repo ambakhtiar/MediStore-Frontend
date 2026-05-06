@@ -105,6 +105,7 @@ export default function MedicineForm({
             <CardContent>
                 <form
                     id="medicine-form"
+                    suppressHydrationWarning
                     onSubmit={(e) => {
                         e.preventDefault();
                         form.handleSubmit();

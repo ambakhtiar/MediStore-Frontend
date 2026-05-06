@@ -1,26 +1,31 @@
 /**
  * Shop Page - Server Component Wrapper
- * Path: src/app/shop/page.tsx
- * 
- * This is a server component that fetches initial data
- * and passes it to the client component
+ * Path: src/app/(commonLayout)/shop/page.tsx
  */
-
 import { getCategories } from "@/action/category.action";
 import ShopPageClient from "./shop-client";
+import { Suspense } from "react";
+
 export const dynamic = "force-dynamic";
-// export const fetchCache = "force-no-store";
 
-
-export default async function ShopPage({
-    searchParams,
-}: {
-    searchParams: { [key: string]: string | string[] | undefined };
+export default async function ShopPage(props: {
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+    // Next.js 16 awaits searchParams
+    const searchParams = await props.searchParams;
+
     // Fetch categories on server
     const categoriesRes = await getCategories();
-    const categories = categoriesRes?.data?.data || [];
+    const categoriesData = categoriesRes?.data?.data;
+    const categories = Array.isArray(categoriesData) 
+        ? categoriesData 
+        : categoriesData?.items 
+            ? categoriesData.items 
+            : [];
 
-    // Pass to client component
-    return <ShopPageClient categories={categories} searchParams={searchParams} />;
+    return (
+        <Suspense fallback={<div className="section-padding text-center">Loading shop...</div>}>
+            <ShopPageClient categories={categories} searchParams={searchParams ?? {}} />
+        </Suspense>
+    );
 }

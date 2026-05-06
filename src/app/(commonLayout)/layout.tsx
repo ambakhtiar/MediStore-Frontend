@@ -1,19 +1,18 @@
 import { Navbar } from "@/components/layout/navbar";
 import { ReactNode } from "react";
 import { getSession } from "@/action/user.action";
-export const dynamic = "force-dynamic";
-// export const fetchCache = "force-no-store"; 
 
+export const dynamic = "force-dynamic";
 
 const CommonLayout = async ({ children }: { children: ReactNode }) => {
     const session = await getSession();
-    // console.log(session);
 
     return (
-        // <div className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-8">
-        <div className="w-11/12 md:max-w-5xl lg:max-w-6xl mx-auto px-4 lg:px-8">
+        <div className="flex flex-col min-h-screen">
             <Navbar session={session} />
-            {children}
+            <main className="flex-1 w-full">
+                {children}
+            </main>
         </div>
     );
 };

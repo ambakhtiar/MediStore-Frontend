@@ -9,13 +9,33 @@ import { cookies } from "next/headers";
 
 const API_URL = env.API_URL;
 
+export type CategoryParams = {
+    search?: string;
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: string;
+    isPrescriptionRequired?: string | boolean;
+};
+
 /**
  * Get all categories
  * GET /api/categories
  */
-const getAll = async (): Promise<ApiResponse<Category[]>> => {
+const getAll = async (params: CategoryParams = {}): Promise<ApiResponse<any>> => {
     try {
-        const res = await fetch(`${API_URL}/categories`, {
+        const url = new URL(`${API_URL}/categories`);
+        if (params.search) url.searchParams.append("search", params.search);
+        if (params.page) url.searchParams.append("page", params.page.toString());
+        if (params.limit) url.searchParams.append("limit", params.limit.toString());
+        if (params.sortBy) url.searchParams.append("sortBy", params.sortBy);
+        if (params.sortOrder) url.searchParams.append("sortOrder", params.sortOrder);
+        // ✅ FIX: was missing — this is why the prescription filter never worked
+        if (params.isPrescriptionRequired !== undefined && params.isPrescriptionRequired !== "") {
+            url.searchParams.append("isPrescriptionRequired", String(params.isPrescriptionRequired));
+        }
+
+        const res = await fetch(url.toString(), {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

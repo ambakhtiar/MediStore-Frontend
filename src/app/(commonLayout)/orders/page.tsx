@@ -45,7 +45,8 @@ const getStatusText = (status: string) => {
 
 export default async function OrdersPage() {
     const res = await getOrders();
-    const orders = res?.data?.data ?? [];
+    const data = res?.data?.data;
+    const orders = (data && typeof data === 'object' && 'items' in data) ? (data.items as Order[]) : [];
 
     return (
         <main className="max-w-6xl mx-auto p-6">
@@ -66,30 +67,29 @@ export default async function OrdersPage() {
             ) : (
                 <div className="grid gap-4">
                     {orders.map((order: Order) => (
-                        <Link key={order.id} href={`/orders/${order.id}`}>
-                            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                        <div key={order.id}>
+                            <Card className="hover:shadow-md transition-shadow">
                                 <CardHeader>
                                     <div className="flex justify-between items-start">
-                                        <div>
+                                        <Link href={`/orders/${order.id}`}>
                                             <CardTitle className="text-lg">
                                                 Order #{order.id.slice(0, 8)}
                                             </CardTitle>
                                             <CardDescription>
                                                 {formatDistanceToNow(new Date(order.createdAt), {
                                                     addSuffix: true,
-                                                    // locale: bn,
                                                 })}
                                             </CardDescription>
-                                        </div>
-                                        <div>
+                                        </Link>
+                                        <div className="flex flex-col items-end gap-2">
                                             {
                                                 order.status === "DELIVERED" &&
-                                                <Link href={"/reviews"} className="text-blue-700">Give Review</Link>
+                                                <Link href={"/reviews"} className="text-blue-700 underline text-sm">Give Review</Link>
                                             }
+                                            <Badge variant={getStatusVariant(order.status)}>
+                                                {getStatusText(order.status)}
+                                            </Badge>
                                         </div>
-                                        <Badge variant={getStatusVariant(order.status)}>
-                                            {getStatusText(order.status)}
-                                        </Badge>
                                     </div>
                                 </CardHeader>
                                 <CardContent>
@@ -111,7 +111,7 @@ export default async function OrdersPage() {
                                     </div>
                                 </CardContent>
                             </Card>
-                        </Link>
+                        </div>
                     ))}
                 </div>
             )}

@@ -83,6 +83,11 @@ export interface AdminStats {
     totalMedicines?: number;
     activeMedicines?: number;
     featuredMedicines?: number;
+    charts?: {
+        ordersByStatus: { status: string; count: number }[];
+        revenueByMonth: { month: string; revenue: number }[];
+    };
+    recentTransactions?: any[];
 }
 
 // ============= API RESPONSE TYPES =============

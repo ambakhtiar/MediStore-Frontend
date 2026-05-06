@@ -41,3 +41,26 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+
+# Auto-generated agent rules (personalized per developer)
+.brainsync/agent-rules.md
+
+# Auto-generated AI agent exclusions
+.cursorrules
+.clineRules
+.agent/
+.windsurfrules
+.gemini/
+.cline/
+.mcp.json
+CLAUDE.md 
+.agent-mem
+.agents 
+.brainsync 
+.cursor 
+.vscode 
+
+
+AGENT.md
+.agent-mem/
+.mcp.json.bak

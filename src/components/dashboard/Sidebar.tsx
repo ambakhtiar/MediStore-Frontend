@@ -9,7 +9,8 @@ import {
     Users,
     FolderTree,
     LogOut,
-    Home
+    Home,
+    BarChart3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -17,18 +18,20 @@ import { authClient } from "@/lib/auth-client";
 
 const sellerLinks = [
     { href: "/seller/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/seller/analytics", label: "Analytics", icon: BarChart3 },
     { href: "/seller/medicines", label: "My Medicines", icon: Package },
     { href: "/seller/orders", label: "Orders", icon: ShoppingCart },
 ];
 
 const adminLinks = [
     { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
     { href: "/admin/users", label: "Users", icon: Users },
     { href: "/admin/categories", label: "Categories", icon: FolderTree },
     { href: "/admin/orders", label: "All Orders", icon: ShoppingCart },
 ];
 
-export default function Sidebar({ role }: { role: "seller" | "admin" }) {
+export default function Sidebar({ role, isMobile, onMobileClose }: { role: "seller" | "admin", isMobile?: boolean, onMobileClose?: () => void }) {
     const pathname = usePathname();
     const links = role === "seller" ? sellerLinks : adminLinks;
     const router = useRouter();
@@ -46,20 +49,26 @@ export default function Sidebar({ role }: { role: "seller" | "admin" }) {
         }
     };
 
+    const handleLinkClick = () => {
+        if (isMobile && onMobileClose) {
+            onMobileClose();
+        }
+    };
+
     return (
-        <aside className="w-64 border-r bg-card flex flex-col">
+        <aside className="w-64 border-r bg-card flex flex-col h-full">
             {/* Header */}
-            <div className="p-6 border-b">
+            <div className="p-4 border-b">
                 <h2 className="text-xl font-bold">
                     {role === "seller" ? "Seller" : "Admin"} Panel
                 </h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                    Medicine Store
+                <p className="text-xs text-muted-foreground">
+                    MediStore
                 </p>
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 p-4 space-y-2">
+            <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
                 {links.map((link) => {
                     const Icon = link.icon;
                     const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
@@ -68,12 +77,13 @@ export default function Sidebar({ role }: { role: "seller" | "admin" }) {
                         <Link
                             key={link.href}
                             href={link.href}
+                            onClick={handleLinkClick}
                             className={`flex items-center gap-3 rounded-lg px-4 py-3 transition-all ${isActive
                                 ? "bg-primary text-primary-foreground shadow-sm"
                                 : "hover:bg-muted"
                                 }`}
                         >
-                            <Icon className="h-5 w-5" />
+                            <Icon className="h-5 w-5 shrink-0" />
                             <span className="font-medium">{link.label}</span>
                         </Link>
                     );
@@ -81,10 +91,10 @@ export default function Sidebar({ role }: { role: "seller" | "admin" }) {
             </nav>
 
             {/* Footer */}
-            <div className="p-4 border-t space-y-2">
-                <Link href="/">
+            <div className="p-4 border-t space-y-2 shrink-0">
+                <Link href="/" onClick={handleLinkClick} className="w-full block">
                     <Button variant="outline" className="w-full justify-start">
-                        <Home className="h-5 w-5 mr-3" />
+                        <Home className="h-5 w-5 mr-3 shrink-0" />
                         Back to Store
                     </Button>
                 </Link>
@@ -95,7 +105,7 @@ export default function Sidebar({ role }: { role: "seller" | "admin" }) {
                     onClick={handleLogOut}
                 >
                     <LogOut
-                        className="h-5 w-5 mr-3" />
+                        className="h-5 w-5 mr-3 shrink-0" />
                     Sign Out
                 </Button>
             </div>

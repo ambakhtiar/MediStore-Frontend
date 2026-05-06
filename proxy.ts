@@ -17,7 +17,7 @@ export async function proxy(request: NextRequest) {
 
     //* User in not authenticated at all
     if (!isAuthenticated) {
-        return NextResponse.redirect(new URL("/login", request.url));
+        return NextResponse.redirect(new URL("/auth/login", request.url));
     }
 
     // Role-based guards
@@ -41,20 +41,15 @@ export async function proxy(request: NextRequest) {
     if (
         pathname === "/cart" ||
         pathname.startsWith("/cart") ||
-        pathname === "/orders" ||
-        pathname.startsWith("/orders") ||
         pathname === "/review" ||
         pathname.startsWith("/reviews") ||
         pathname === "/checkout"
     ) {
         if (role !== Roles.customer) {
-            // যদি role customer না হয়, হোমপেজে রিডাইরেক্ট করবে
             return NextResponse.redirect(new URL("/", request.url));
         }
-        // customer হলে এগুলোতে যেতে পারবে
         return NextResponse.next();
     }
-
 
     // All other matched routes are allowed for any authenticated user
     return NextResponse.next();

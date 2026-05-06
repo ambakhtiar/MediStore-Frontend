@@ -1,55 +1,3 @@
-// import { getAdminDashboardStats } from "@/action/dashboard.action";
-// import StatsCard from "@/components/dashboard/StatsCard";
-// import { Users, ShoppingCart, Package, DollarSign, UserCheck, UserX } from "lucide-react";
-
-// export default async function AdminDashboardPage() {
-//     const statsRes = await getAdminDashboardStats();
-//     const stats = statsRes?.data?.data || {};
-
-//     return (
-//         <div className="space-y-6">
-//             <div>
-//                 <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-//                 <p className="text-muted-foreground">System overview and statistics</p>
-//             </div>
-
-//             {/* User Stats */}
-//             <div>
-//                 <h2 className="text-xl font-semibold mb-4">User Statistics</h2>
-//                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-//                     <StatsCard title="Total Users" value={stats.totalUsers || 0} icon={Users} />
-//                     <StatsCard title="Customers" value={stats.totalCustomers || 0} icon={UserCheck} />
-//                     <StatsCard title="Sellers" value={stats.totalSellers || 0} icon={UserCheck} />
-//                     <StatsCard title="Banned Users" value={stats.bannedUsers || 0} icon={UserX} />
-//                 </div>
-//             </div>
-
-//             {/* Order Stats */}
-//             <div>
-//                 <h2 className="text-xl font-semibold mb-4">Order Statistics</h2>
-//                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-//                     <StatsCard title="Total Orders" value={stats.totalOrders || 0} icon={ShoppingCart} />
-//                     <StatsCard title="Pending" value={stats.pendingOrders || 0} icon={ShoppingCart} description="Awaiting confirmation" />
-//                     <StatsCard title="Delivered" value={stats.deliveredOrders || 0} icon={ShoppingCart} description="Successfully completed" />
-//                     <StatsCard title="Cancelled" value={stats.cancelledOrders || 0} icon={ShoppingCart} />
-//                 </div>
-//             </div>
-
-//             {/* Medicine & Revenue Stats */}
-//             <div>
-//                 <h2 className="text-xl font-semibold mb-4">Medicine & Revenue</h2>
-//                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-//                     <StatsCard title="Total Medicines" value={stats.totalMedicines || 0} icon={Package} />
-//                     <StatsCard title="Active Medicines" value={stats.activeMedicines || 0} icon={Package} />
-//                     <StatsCard title="Featured" value={stats.featuredMedicines || 0} icon={Package} />
-//                     <StatsCard title="Total Revenue" value={`৳${(stats.totalRevenue || 0).toFixed(2)}`} icon={DollarSign} />
-//                 </div>
-//             </div>
-//         </div>
-//     );
-// }
-
-
 import { getAdminDashboardStats } from "@/action/dashboard.action";
 import StatsCard from "@/components/dashboard/StatsCard";
 import {
@@ -215,6 +163,7 @@ export default async function AdminDashboardPage() {
                     </div>
                 </CardContent>
             </Card>
+
         </div>
     );
 }

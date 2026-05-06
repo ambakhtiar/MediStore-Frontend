@@ -92,58 +92,26 @@ const getDashboardStats = async () => {
     const cookieStore = await cookies();
 
     try {
-        // Fetch all necessary data
-        const [usersRes, ordersRes, medicinesRes] = await Promise.all([
-            fetch(`${API_URL}/admin/users`, {
-                headers: { Cookie: cookieStore.toString() },
-                credentials: "include",
-            }),
-            fetch(`${API_URL}/orders`, {
-                headers: { Cookie: cookieStore.toString() },
-                credentials: "include",
-            }),
-            fetch(`${API_URL}/medicines`, {
-                headers: { Cookie: cookieStore.toString() },
-                credentials: "include",
-            }),
-        ]);
+        const res = await fetch(`${API_URL}/admin/stats`, {
+            headers: { Cookie: cookieStore.toString() },
+            credentials: "include",
+        });
 
-        const users = await usersRes.json().catch(() => ({ data: [] }));
-        const orders = await ordersRes.json().catch(() => ({ data: [] }));
-        const medicines = await medicinesRes.json().catch(() => ({ data: [] }));
+        const body = await res.json().catch(() => null);
 
-
-        // Calculate statistics
-        const userData = users?.data || [];
-        const orderData = orders?.data || [];
-        const medicineData = medicines?.data?.data || [];
-
-        // console.log(userData, orderData, medicineData);
-
-        const stats = {
-            totalUsers: userData.length,
-            totalCustomers: userData.filter((u: User) => u.role === "CUSTOMER").length,
-            totalSellers: userData.filter((u: User) => u.role === "SELLER").length,
-            bannedUsers: userData.filter((u: User) => u.status === "BAN").length,
-
-            totalOrders: orderData.length,
-            pendingOrders: orderData.filter((o: Order) => o.status === "PLACED").length,
-            deliveredOrders: orderData.filter((o: Order) => o.status === "DELIVERED").length,
-            cancelledOrders: orderData.filter((o: Order) => o.status === "CANCELLED").length,
-
-            totalRevenue: orderData
-                .filter((o: Order) => o.status !== "CANCELLED")
-                .reduce((sum: number, o: Order) => sum + (o.total || 0), 0),
-
-            totalMedicines: medicineData.length,
-            activeMedicines: medicineData.filter((m: Medicine) => m.isActive).length,
-            featuredMedicines: medicineData.filter((m: Medicine) => m.isFeatured).length,
-        };
+        if (!res.ok) {
+            return {
+                ok: false,
+                status: res.status,
+                data: null,
+                error: { message: body?.message ?? "Failed to fetch statistics" },
+            };
+        }
 
         return {
             ok: true,
-            status: 200,
-            data: { data: stats },
+            status: res.status,
+            data: body,
             error: null,
         };
     } catch (err) {

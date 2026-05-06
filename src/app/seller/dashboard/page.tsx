@@ -15,8 +15,17 @@ export default async function SellerDashboardPage() {
         getSellerOrders(),
     ]);
 
-    const medicines = medicinesRes?.data?.data?.data || [];
-    const orders = ordersRes?.data?.data || [];
+    // Helper to safely get items array
+    const extractItems = (data: any) => {
+        if (!data) return [];
+        if (Array.isArray(data)) return data;
+        if (data.items && Array.isArray(data.items)) return data.items;
+        if (data.data && Array.isArray(data.data)) return data.data;
+        return [];
+    };
+
+    const medicines = extractItems(medicinesRes?.data?.data);
+    const orders = extractItems(ordersRes?.data?.data);
 
     // Calculate statistics
     const totalProducts = medicines.length;
@@ -163,6 +172,7 @@ export default async function SellerDashboardPage() {
                     </CardContent>
                 </Card>
             </div>
+
         </div>
     );
 }

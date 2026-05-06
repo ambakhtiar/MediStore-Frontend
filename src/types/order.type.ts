@@ -45,6 +45,14 @@ export interface OrderItem {
         imageUrl?: string | null;
         genericName?: string | null;
         manufacturer?: string | null;
+        sellerId?: string | null;
+        seller?: {
+            id: string;
+            name: string;
+            email: string;
+            image: string | null;
+            phone: string | null;
+        } | null;
     };
 }
 
@@ -88,7 +96,15 @@ export interface OrdersListApiResponse {
     status: number;
     data?: {
         message?: string;
-        data?: Order[];
+        data?: {
+            items: Order[];
+            pagination: {
+                total: number;
+                page: number;
+                limit: number;
+                totalPages: number;
+            };
+        };
     } | null;
     error?: {
         message: string;

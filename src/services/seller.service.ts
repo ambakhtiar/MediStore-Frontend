@@ -19,11 +19,20 @@ const API_URL = env.API_URL;
  * Get seller's medicines
  * GET /api/seller/medicines
  */
-const getMedicines = async () => {
+const getMedicines = async (params?: any) => {
     const cookieStore = await cookies();
 
     try {
-        const res = await fetch(`${API_URL}/medicines/seller`, {
+        const url = new URL(`${API_URL}/medicines/seller`);
+        if (params) {
+            Object.keys(params).forEach((key) => {
+                if (params[key] !== undefined && params[key] !== null && params[key] !== "") {
+                    url.searchParams.append(key, String(params[key]));
+                }
+            });
+        }
+
+        const res = await fetch(url.toString(), {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -204,11 +213,20 @@ const deleteMedicine = async (id: string) => {
  * Get seller's orders
  * GET /api/seller/orders
  */
-const getOrders = async () => {
+const getOrders = async (params?: any) => {
     const cookieStore = await cookies();
 
     try {
-        const res = await fetch(`${API_URL}/orders`, {
+        const url = new URL(`${API_URL}/orders`);
+        if (params) {
+            Object.keys(params).forEach((key) => {
+                if (params[key] !== undefined && params[key] !== null && params[key] !== "") {
+                    url.searchParams.append(key, String(params[key]));
+                }
+            });
+        }
+
+        const res = await fetch(url.toString(), {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
