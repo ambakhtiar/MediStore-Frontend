@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Eye } from "lucide-react";
+import { Eye, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Order, OrderItem, OrderStatus } from "@/types";
 import { format } from "date-fns";
 import Link from "next/link";
@@ -162,21 +162,74 @@ export function AdminOrdersClient() {
                             <SelectItem value="over1000">Above ৳1000</SelectItem>
                         </SelectContent>
                     </Select>
+
+                    <div className="flex items-center gap-2 border rounded-md px-2 bg-background">
+                        <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">Sort:</span>
+                        <Select
+                            value={params.sortBy || "createdAt"}
+                            onValueChange={(v) => onFilterChange("sortBy", v)}
+                        >
+                            <SelectTrigger className="w-[110px] border-none shadow-none focus:ring-0 h-8 text-xs">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="createdAt">Date</SelectItem>
+                                <SelectItem value="total">Total</SelectItem>
+                                <SelectItem value="id">ID</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <div className="w-px h-4 bg-border" />
+                        <Select
+                            value={params.sortOrder || "desc"}
+                            onValueChange={(v) => onFilterChange("sortOrder", v)}
+                        >
+                            <SelectTrigger className="w-[100px] border-none shadow-none focus:ring-0 h-8 text-xs">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="desc">{params.sortBy === "total" ? "High to Low" : "Newest First"}</SelectItem>
+                                <SelectItem value="asc">{params.sortBy === "total" ? "Low to High" : "Oldest First"}</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
             }
         >
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Order ID</TableHead>
+                        <TableHead className="cursor-pointer hover:bg-muted/50 select-none" onClick={() => onSort("id")}>
+                            <div className="flex items-center gap-1">
+                                Order ID
+                                {params.sortBy === "id" ? (
+                                    params.sortOrder === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
+                                ) : (
+                                    <ArrowUpDown className="h-3 w-3 text-muted-foreground/50" />
+                                )}
+                            </div>
+                        </TableHead>
                         <TableHead>Customer</TableHead>
                         <TableHead>Items</TableHead>
-                        <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => onSort("total")}>
-                            Total {params.sortBy === "total" && (params.sortOrder === "asc" ? "↑" : "↓")}
+                        <TableHead className="cursor-pointer hover:bg-muted/50 select-none" onClick={() => onSort("total")}>
+                            <div className="flex items-center gap-1">
+                                Total
+                                {params.sortBy === "total" ? (
+                                    params.sortOrder === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
+                                ) : (
+                                    <ArrowUpDown className="h-3 w-3 text-muted-foreground/50" />
+                                )}
+                            </div>
                         </TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => onSort("createdAt")}>
-                            Date {params.sortBy === "createdAt" && (params.sortOrder === "asc" ? "↑" : "↓")}
+                        <TableHead className="cursor-pointer hover:bg-muted/50 select-none" onClick={() => onSort("createdAt")}>
+                            <div className="flex items-center gap-1">
+                                Date
+                                {params.sortBy === "createdAt" ? (
+                                    params.sortOrder === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
+                                ) : (
+                                    <ArrowUpDown className="h-3 w-3 text-muted-foreground/50" />
+                                )}
+                            </div>
                         </TableHead>
                         <TableHead>Update Status</TableHead>
                         <TableHead className="text-right">Actions</TableHead>

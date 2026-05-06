@@ -27,18 +27,18 @@ export default function MedicinePageClient({
     const { data: session } = authClient.useSession();
     const userRole = (session?.user as any)?.role ?? "CUSTOMER";
 
-    const [mainImage, setMainImage] = useState<string>("");
-    
-    // Fallback if multiple images were supported via comma-separated string, otherwise just use single image
+    // Derive images and initial main image
     const images = initialMedicine?.imageUrl 
-        ? initialMedicine.imageUrl.split(",").map(i => i.trim()) 
+        ? initialMedicine.imageUrl.split(",").map(i => i.trim()).filter(i => i !== "") 
         : ["/placeholder.svg"];
+
+    const [mainImage, setMainImage] = useState<string>(images[0] || "/placeholder.svg");
 
     useEffect(() => {
         if (images.length > 0) {
             setMainImage(images[0]);
         }
-    }, [initialMedicine]);
+    }, [initialMedicine?.id]); // Use ID for better tracking
 
     if (!initialMedicine) {
         return (
@@ -63,7 +63,7 @@ export default function MedicinePageClient({
                 {/* Image Gallery Column */}
                 <div className="w-full lg:w-1/2 flex flex-col gap-4">
                     <div className="relative w-full aspect-square rounded-2xl overflow-hidden border bg-white shadow-sm">
-                        {mainImage !== "/placeholder.svg" ? (
+                        {mainImage && mainImage !== "/placeholder.svg" ? (
                             <Image
                                 src={encodeURI(mainImage)}
                                 alt={initialMedicine.name ?? "Medicine Image"}
